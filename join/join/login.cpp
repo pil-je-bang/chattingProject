@@ -57,6 +57,7 @@ int main()
     while (res->next() == true) {
         std::string id = res->getString("id");
         if (in == id) { cout << "!!"; }
+        cout << "id :" << id.c_str() << endl;
     }
 
     delete stmt;
@@ -68,7 +69,6 @@ int main()
 
     // MySQL Connector/C++ Á¤¸®
     delete res;
- 
     delete con;
 
     return 0;
