@@ -2,6 +2,7 @@
 #include <string>
 #include <mysql/jdbc.h>
 #include <windows.h>
+#include <vector>
 #define ENABLE_TRACE 
 
 using std::cout;
@@ -18,11 +19,13 @@ int main()
 {
 
     // MySQL Connector/C++ 초기화
+   
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
     sql::Connection* con;
     sql::Statement* stmt;
     sql::PreparedStatement* pstmt;
     sql::ResultSet* res = NULL;
+    vector<string> user_info = {"id","name","pw","birth","num","email","address" };
     int choice = 0;
     string in = "";
     string pw = "";
@@ -49,46 +52,58 @@ int main()
     stmt = con->createStatement();
     /*stmt->execute("DROP TABLE IF EXISTS user_info");// 채팅 시작 할때 생성해야 됨
     cout << "Finished dropping table (if existed)" << endl;// DROP
-    stmt->execute("CREATE TABLE user_info (id VARCHAR(50) PRIMARY key , name VARCHAR(50));"); // CREATE
-    cout << "Finished creating table" << endl;*/
+    stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth VARCHAR(50), num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
+    cout << "Finished creating table" << endl;
+    */
+
     while (is_there_same) {
+        cout << "============join==============" << endl;
         cout << "id :";
         getline(cin, in);
         res = stmt->executeQuery("SELECT id FROM user_info");
-        while (res->next() == true) {
-            std::string id = res->getString("id");
-            if (in == id) {
-                is_there_same = true; cout << "이미 존재하는 아이디 입니다." << endl;
-                Sleep(500);
-                break;
-            }
-            else
-                is_there_same = false;
+        while (res->next()) {
+                std::string id = res->getString("id");
+                if (in == id) {
+                    cout << "이미 존재하는 아이디 입니다." << endl;
+                    Sleep(500);
+                    is_there_same = true;
+                    break;
+                }
+                else {
+                    is_there_same = false;
+                }
+            
         }
         system("cls");
     }
-    if (is_there_same) {}
-    else {
-        pstmt = con->prepareStatement("INSERT INTO user_info(id, name ) VALUES(?,?)"); // INSERT
-        pstmt->setString(1, in);
-        pstmt->setString(2, "john");
-        pstmt->execute();
-        cout << "가입완료" << endl;
-        delete pstmt;
-    }
 
-
-    cout << "===========id list=============" << endl;
+    user_info[0] = in;
+    string input = "";
     
+    for (int i = 1 ; i<7; i++){
+        cout << user_info[i] << ": ";
+        cin >> input;
+        user_info[i] = input;
+    }
+    pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
+    pstmt->setString(1, user_info[0]);
+    pstmt->setString(2, user_info[1]);
+    pstmt->setString(3, user_info[2]);
+    pstmt->setString(4, user_info[3]);
+    pstmt->setString(5, user_info[4]);
+    pstmt->setString(6, user_info[5]);
+    pstmt->setString(7, user_info[6]);
+    pstmt->execute();
+    
+    delete pstmt;
+    cout << "가입완료" << endl;
+
     while (res->next() == true) {
         std::string id = res->getString("id");
         if (in == id) { is_there_same = true; }
     }
     delete stmt;
-
-    // MySQL Connector/C++ 정리
     delete res;
-
     delete con;
 
     return 0;
