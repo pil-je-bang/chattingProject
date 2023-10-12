@@ -211,11 +211,6 @@ int main()
     pstmt->execute();
     delete pstmt;
     cout << "가입완료" << endl;
-
-    while (res->next() == true) {
-        std::string id = res->getString("id");
-        if (in == id) { is_there_same = true; }
-    }
     delete stmt;
     delete res;
     delete con;
