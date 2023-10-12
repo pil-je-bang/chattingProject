@@ -19,13 +19,13 @@ int main()
 {
 
     // MySQL Connector/C++ 초기화
-   
+
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
     sql::Connection* con;
     sql::Statement* stmt;
     sql::PreparedStatement* pstmt;
     sql::ResultSet* res = NULL;
-    vector<string> user_info = {"id","name","pw","birth","num","email","address" };
+    vector<string> user_info = { "id","name","pw","birth","num","email","address" };
     int choice = 0;
     string in = "";
     string pw = "";
@@ -42,7 +42,7 @@ int main()
 
     // 데이터베이스 선택
     con->setSchema("final");
-    
+
     // db 한글 저장을 위한 셋팅 
     stmt = con->createStatement();
     stmt->execute("set names euckr");
@@ -62,39 +62,34 @@ int main()
         getline(cin, in);
         res = stmt->executeQuery("SELECT id FROM user_info");
         while (res->next()) {
-                std::string id = res->getString("id");
-                if (in == id) {
-                    cout << "이미 존재하는 아이디 입니다." << endl;
-                    Sleep(500);
-                    is_there_same = true;
-                    break;
-                }
-                else {
-                    is_there_same = false;
-                }
-            
+            std::string id = res->getString("id");
+            if (in == id) {
+                cout << "이미 존재하는 아이디 입니다." << endl;
+                Sleep(500);
+                is_there_same = true;
+                break;
+            }
+            else {
+                is_there_same = false;
+            }
+
         }
         system("cls");
     }
 
     user_info[0] = in;
     string input = "";
-    
-    for (int i = 1 ; i<7; i++){
+
+    for (int i = 1; i < 7; i++) {
         cout << user_info[i] << ": ";
         cin >> input;
         user_info[i] = input;
     }
     pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
-    pstmt->setString(1, user_info[0]);
-    pstmt->setString(2, user_info[1]);
-    pstmt->setString(3, user_info[2]);
-    pstmt->setString(4, user_info[3]);
-    pstmt->setString(5, user_info[4]);
-    pstmt->setString(6, user_info[5]);
-    pstmt->setString(7, user_info[6]);
+    for (int i = 0; i < 7; i++) {
+        pstmt->setString(i+1, user_info[i]);
+    }
     pstmt->execute();
-    
     delete pstmt;
     cout << "가입완료" << endl;
 
