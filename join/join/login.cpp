@@ -16,7 +16,10 @@ const string password = "admin"; // 데이터베이스 접속 비밀번호
 
 int main()
 {
-
+    string input_id = "";
+    string input_pw = "";
+    bool login = false;
+    bool pass = false;
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
     sql::Connection* con;
@@ -43,30 +46,30 @@ int main()
     // 데이터베이스 쿼리 실행
     stmt = con->createStatement();
 
-
+    cout << "==========login===========" << endl;
     cout << "id :";
-    string in = "";
-    string pw = "";
-    getline(cin, in);
+    getline(cin, input_id);
     cout << "pw :";
-    getline(cin, pw);
+    getline(cin, input_pw);
 
     res = stmt->executeQuery("SELECT id FROM user_info");
-
-    cout << "===========id list=============" << endl;
     while (res->next() == true) {
         std::string id = res->getString("id");
-        if (in == id) { cout << "!!"; }
-        cout << "id :" << id.c_str() << endl;
+        if (input_id == id) { login = true; }
     }
 
+    res = stmt->executeQuery("SELECT pw FROM user_info where id =\"" + input_id + "\"");
+    while (res->next() == true) {
+        std::string pw = res->getString("pw");
+        if (input_pw == pw) { pass = true; }
+    }
+    if (login&&pass) {
+        cout << "로그인 성공";
+    }
+    else {
+        cout << "로그인 실패";
+    }
     delete stmt;
-
-
-
-
-
-
     // MySQL Connector/C++ 정리
     delete res;
     delete con;
