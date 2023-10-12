@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3154a66a-4ff0-4776-ab4b-551364abaf76}</ProjectGuid>
-    <RootNamespace>chatting</RootNamespace>
+    <ProjectGuid>{b204f6c4-adf8-41f3-be3e-41953a0857e3}</ProjectGuid>
+    <RootNamespace>Project1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -130,8 +130,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="server.cpp" />
-    <ClCompile Include="server1.cpp">
+    <ClCompile Include="..\chatting\chatting.cpp" />
+    <ClCompile Include="client1.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
