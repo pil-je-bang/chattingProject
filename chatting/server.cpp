@@ -25,6 +25,12 @@ struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     string user;
 };
 
+// MySQL Connector/C++ 초기화
+sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
+sql::Connection* con;
+sql::Statement* stmt;
+sql::PreparedStatement* pstmt;
+
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
 SOCKET_INFO server_sock; // 서버 소켓에 대한 정보를 저장할 변수 선언.
 int client_count = 0; // 현재 접속해 있는 클라이언트를 count 할 변수 선언.
@@ -55,7 +61,6 @@ int main() {
 
         while (1) { // 무한 반복문을 사용하여 서버가 계속해서 채팅 보낼 수 있는 상태를 만들어 줌. 반복문을 사용하지 않으면 한 번만 보낼 수 있음.
             string text, msg = "";
-
             std::getline(cin, text);
             const char* buf = text.c_str();
             msg = server_sock.user + " : " + buf;
@@ -122,7 +127,7 @@ void add_client() {
     string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
     cout << msg << endl;
     sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
-    
+
 
     std::thread th(recv_msg, client_count);
     // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
@@ -146,12 +151,6 @@ void recv_msg(int idx) {
     char buf[MAX_SIZE] = { };
     string msg = "";
 
-    // MySQL Connector/C++ 초기화
-    sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
-    sql::Connection* con;
-    sql::Statement* stmt;
-    sql::PreparedStatement* pstmt;
-
     try {
         driver = sql::mysql::get_mysql_driver_instance();
         con = driver->connect(server, username, password);
@@ -169,21 +168,21 @@ void recv_msg(int idx) {
     stmt->execute("set names euckr");
     if (stmt) { delete stmt; stmt = nullptr; }
 
-    //cout << sck_list[idx].user << endl;
+    ////cout << sck_list[idx].user << endl;
 
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
-        if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것.
-
+        if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0 ) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것
             msg = sck_list[idx].user + " : " + buf;
             cout << msg << endl;
             send_msg(msg.c_str());
-            pstmt = con->prepareStatement("INSERT INTO chatting(내용) VALUES(?)"); // INSERT
-            pstmt->setString(1, buf);
+            pstmt = con->prepareStatement("INSERT INTO chatting(id, 내용) VALUES(?,?)"); // INSERT
+            pstmt->setString(1, sck_list[idx].user);
+            pstmt->setString(2, buf);
             pstmt->execute();
             // MySQL Connector/C++ 정리
             delete pstmt;
-            
+
         }
         else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
