@@ -25,11 +25,14 @@ struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     string user;
 };
 
+
+
 // MySQL Connector/C++ 초기화
 sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
 sql::Connection* con;
 sql::Statement* stmt;
 sql::PreparedStatement* pstmt;
+sql::ResultSet* res;
 
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
 SOCKET_INFO server_sock; // 서버 소켓에 대한 정보를 저장할 변수 선언.
@@ -51,7 +54,6 @@ int main() {
 
     if (!code) {
         server_init();
-
         std::thread th1[MAX_CLIENT];
         for (int i = 0; i < MAX_CLIENT; i++) {
             // 인원 수 만큼 thread 생성해서 각각의 클라이언트가 동시에 소통할 수 있도록 함.
@@ -111,22 +113,69 @@ void server_init() {
 
 
 void add_client() {
+    SOCKET_INFO new_client = {};
+
+    bool ID = false;
+    bool PW = false;
     SOCKADDR_IN addr = {};
     int addrsize = sizeof(addr);
     char buf[MAX_SIZE] = { };
+    string input_id, input_pw;
 
     ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
 
-    SOCKET_INFO new_client = {};
 
-    new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
-    recv(new_client.sck, buf, MAX_SIZE, 0);
-    // Winsock2의 recv 함수. client가 보낸 닉네임을 받음.
-    new_client.user = string(buf);
 
-    string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
+    while (1) {
+        new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
+        recv(new_client.sck, buf, MAX_SIZE, 0);
+        new_client.user = string(buf);
+        input_id = new_client.user.substr(0, new_client.user.find("-"));
+        input_pw = new_client.user.substr(new_client.user.find("-") + 1);
+
+        try {
+            driver = sql::mysql::get_mysql_driver_instance();
+            con = driver->connect(server, username, password);
+        }
+        catch (sql::SQLException& e) {
+            cout << "Could not connect to server. Error message: " << e.what() << endl;
+            exit(1);
+        }
+
+        // 데이터베이스 선택
+        con->setSchema("kdt");
+
+        // db 한글 저장을 위한 셋팅 
+        stmt = con->createStatement();
+        stmt->execute("set names euckr");
+        if (stmt) { delete stmt; stmt = nullptr; }
+
+        stmt = con->createStatement();
+
+        res = stmt->executeQuery("SELECT id FROM user_info");
+        while (res->next() == true) {
+            std::string id = res->getString("id");
+            if (input_id == id) { ID = true; }
+        }
+
+        stmt = con->createStatement();
+        res = stmt->executeQuery("SELECT pw FROM user_info where id =\"" + input_id + "\"");
+        while (res->next() == true) {
+            std::string pw = res->getString("pw");
+            if (input_pw == pw) { PW = true; }
+        }
+
+        if (ID && PW) {
+            send(new_client.sck, "true", strlen("true"), 0);
+            sck_list.push_back(new_client);
+            break;
+        }
+        else {
+            send(new_client.sck, "false", strlen("false"), 0);
+        }
+    }
+    string msg = "[공지] " + input_id + " 님이 입장했습니다.";
     cout << msg << endl;
-    sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
 
 
     std::thread th(recv_msg, client_count);
@@ -173,16 +222,17 @@ void recv_msg(int idx) {
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
         if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0 ) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것
+            sck_list[idx].user = sck_list[idx].user.substr(0,sck_list[idx].user.find("-"));
             msg = sck_list[idx].user + " : " + buf;
             cout << msg << endl;
             send_msg(msg.c_str());
+
             pstmt = con->prepareStatement("INSERT INTO chatting(id, 내용) VALUES(?,?)"); // INSERT
             pstmt->setString(1, sck_list[idx].user);
             pstmt->setString(2, buf);
             pstmt->execute();
             // MySQL Connector/C++ 정리
             delete pstmt;
-
         }
         else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
@@ -194,6 +244,7 @@ void recv_msg(int idx) {
 
     }
 }
+
 
 void del_client(int idx) {
     closesocket(sck_list[idx].sck);
