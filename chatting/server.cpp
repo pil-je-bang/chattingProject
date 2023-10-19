@@ -113,22 +113,26 @@ void server_init() {
 
 
 void add_client() {
-    SOCKET_INFO new_client = {};
+    
 
     bool ID = false;
     bool PW = false;
-    SOCKADDR_IN addr = {};
-    int addrsize = sizeof(addr);
-    char buf[MAX_SIZE] = { };
     string input_id, input_pw;
-
-    ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
-
+    
 
 
     while (1) {
+        SOCKET_INFO new_client = {};
+        SOCKADDR_IN addr = {};
+        int addrsize = sizeof(addr);
+        char buf[MAX_SIZE] = { };
+        
+
+        ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
+
         new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
         recv(new_client.sck, buf, MAX_SIZE, 0);
+        cout << "버퍼" << buf;
         new_client.user = string(buf);
         input_id = new_client.user.substr(0, new_client.user.find("-"));
         input_pw = new_client.user.substr(new_client.user.find("-") + 1);

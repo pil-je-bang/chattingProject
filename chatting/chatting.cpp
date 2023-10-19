@@ -44,6 +44,7 @@ int chat_recv() {
 		ZeroMemory(&buf, MAX_SIZE);
 		if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
 			msg = buf;
+			cout << "버퍼" << buf;
 			std::stringstream ss(msg);  // 문자열을 스트림화
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
@@ -288,10 +289,6 @@ string login(/*string input_id, string input_pw*/) {
 
 		// 서버로부터 로그인 결과 받기
 		char buf[MAX_SIZE] = { };
-		SOCKADDR_IN addr = {};
-		int addrsize = sizeof(addr);
-
-		ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
 		recv(client_sock, buf, MAX_SIZE, 0);
 
 		// 결과 출력

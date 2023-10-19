@@ -1,14 +1,14 @@
 ﻿  chatting.cpp
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(112,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(162,16): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(287,48): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(300,18): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(305,18): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(380,17): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(605,36): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(113,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(163,16): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(288,48): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(297,18): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(302,18): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(377,17): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\chatting.cpp(602,36): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
      C:\Users\ppjj2\github\Project1\chattingProject\x64\Release\Project1.lib 라이브러리 및 C:\Users\ppjj2\github\Project1\chattingProject\x64\Release\Project1.exp 개체를 생성하고 있습니다.
   코드를 생성하고 있습니다.
-  1 of 997 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  3 of 997 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
