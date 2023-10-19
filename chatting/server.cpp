@@ -203,9 +203,9 @@ void add_client() {
     }
     else if (strcmp(buf, "4") == 0) {
         recv(new_client.sck, buf, MAX_SIZE, 0);
+        cout << buf;
 
         stmt = con->createStatement();
-
         res = stmt->executeQuery("SELECT pw FROM user_info");
         while (res->next() == true) {
             std::string pw = res->getString("pw");
@@ -216,10 +216,34 @@ void add_client() {
         }
         char buf1[MAX_SIZE] = { };
         recv(new_client.sck, buf1, MAX_SIZE, 0);
-        string revise_col;
+        
+        string revise_num, revise_info, revise_col;
+        new_client.user = string(buf1);
+        revise_num = new_client.user.substr(0, new_client.user.find("-"));
+        revise_info = new_client.user.substr(new_client.user.find("-") + 1);
+        cout << revise_num << "+" << revise_info;
+
+        if (revise_num == "1") {
+            revise_col = "name";
+        }
+        else if (revise_num == "2") {
+            revise_col = "pw";
+        }
+        else if (revise_num == "3") {
+            revise_col = "birth";
+        }
+        else if (revise_num == "4") {
+            revise_col = "num";
+        }
+        else if (revise_num == "5") {
+            revise_col = "email";
+        }
+        else if (revise_num == "6") {
+            revise_col = "address";
+        }
 
         pstmt = con->prepareStatement("UPDATE user_info SET" + revise_col +" = ? WHERE pw = ? ");
-        pstmt->setString(1, buf1);
+        pstmt->setString(1, revise_info);
         pstmt->setString(2, buf);
         pstmt->executeUpdate();
         send(new_client.sck, "true", strlen("true"), 0);

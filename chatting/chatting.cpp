@@ -474,6 +474,7 @@ void revise() {
 		send(client_sock, revise_info.c_str(), revise_info.length(), 0);
 
 		recv(client_sock, buf1, MAX_SIZE, 0);
+
 		if (strcmp(buf1, "true") == 0) {
 			cout << "변경이 완료되었습니다.";
 			complete_revise = false;
