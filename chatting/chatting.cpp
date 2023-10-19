@@ -78,6 +78,8 @@ string get_time()
 }
 
 string sign_up() {
+
+
 	try {
 		driver = sql::mysql::get_mysql_driver_instance();
 		con = driver->connect(server, username, password);
@@ -265,6 +267,7 @@ string login(/*string input_id, string input_pw*/) {
 	string input_id = "";
 	string input_pw = "";
 	bool login_success = false;
+	send(client_sock, "1", 1, 0);
 
 	while (login_success == false) {
 
@@ -415,126 +418,158 @@ void beforechatting() {
 }
 
 void revise() {
+	send(client_sock, "4", 1, 0);
 	bool complete_revise = true;
+	char buf[MAX_SIZE] = { };
+	
+
 	while (complete_revise) {
+		string revise_number;
 		string input_pw;
 		cout << "비밀번호를 입력하세요 : ";
 		cin >> input_pw;
+		string revise_info;
+		string revise_information;
 
-		bool passwordMatch = false;
+		send(client_sock, input_pw.c_str(), input_pw.length(), 0);
 
-		try {
-			driver = sql::mysql::get_mysql_driver_instance();
-			con = driver->connect(server, username, password);
+		recv(client_sock, buf, MAX_SIZE, 0);
+
+		if (strcmp(buf, "true") == 0) {
+			cout << "수정할 정보를 고르세요." << endl;
+			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
+			cin >> revise_number;
 		}
-		catch (sql::SQLException& e) {
-			cout << "Could not connect to server. Error message: " << e.what() << endl;
-			exit(1);
+		char buf1[MAX_SIZE] = { };
+		if (revise_number == "1") {
+			cout << "변경된 이름을 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number +"-" + revise_information;
 		}
+		else if (revise_number == "2") {
+			cout << "변경된 pw를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "3") {
+			cout << "변경된 birth를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "4") {
+			cout << "변경된 number를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "5") {
+			cout << "변경된 email를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "6") {
+			cout << "변경된 email를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		send(client_sock, revise_info.c_str(), revise_info.length(), 0);
 
-		// 데이터베이스 선택
-		con->setSchema("kdt");
+		recv(client_sock, buf1, MAX_SIZE, 0);
+		if (strcmp(buf1, "true") == 0) {
+			cout << "변경이 완료되었습니다.";
+			complete_revise = false;
+			break;
+		}
+			
+		
+		
+		
+		
 
-		// db 한글 저장을 위한 셋팅 
-		stmt = con->createStatement();
-		stmt->execute("set names euckr");
-		if (stmt) { delete stmt; stmt = nullptr; }
+		
 
-		// 데이터베이스 쿼리 실행
-		stmt = con->createStatement();
+					/*if (revise_number == 1) {
+						
+						cout << "변경된 이름을 입력하세요 : ";
+						cin >> revise_name;
+						pstmt = con->prepareStatement("UPDATE user_info SET name = ? WHERE pw = ?");
+						pstmt->setString(1, revise_name);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						complete_revise = false;
+						cout << complete_revise;
+						break;
 
-		res = stmt->executeQuery("SELECT pw FROM user_info");
-		while (res->next() == true) {
-			std::string pw = res->getString("pw");
-			if (input_pw == pw) {
-				int revise_number;
-				passwordMatch = true;
+					}
+					else if (revise_number == 2) {
+						string revise_pw;
+						cout << "변경된 pw을 입력하세요 : ";
+						cin >> revise_pw;
+						pstmt = con->prepareStatement("UPDATE user_info SET pw = ? WHERE pw = ?");
+						pstmt->setString(1, pw);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						break;
+					}
+					else if (revise_number == 3) {
+						string revise_birth;
+						cout << "변경된 birth을 입력하세요 : ";
+						cin >> revise_birth;
+						pstmt = con->prepareStatement("UPDATE user_info SET birth = ? WHERE pw = ?");
+						pstmt->setString(1, revise_birth);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						break;
+					}
+					else if (revise_number == 4) {
+						string revise_num;
+						cout << "변경된 num을 입력하세요 : ";
+						cin >> revise_num;
+						pstmt = con->prepareStatement("UPDATE user_info SET num = ? WHERE pw = ?");
+						pstmt->setString(1, revise_num);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						break;
+					}
+					else if (revise_number == 5) {
+						string revise_email;
+						cout << "변경된 email을 입력하세요 : ";
+						cin >> revise_email;
+						pstmt = con->prepareStatement("UPDATE user_info SET email = ? WHERE pw = ?");
+						pstmt->setString(1, revise_email);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						break;
+					}
+					else if (revise_number == 6) {
+						string revise_address;
+						cout << "변경된 address을 입력하세요 : ";
+						cin >> revise_address;
+						pstmt = con->prepareStatement("UPDATE user_info SET address = ? WHERE pw = ?");
+						pstmt->setString(1, revise_address);
+						pstmt->setString(2, input_pw);
+						pstmt->executeUpdate();
+						cout << "변경이 완료되었습니다.";
+						break;
+					}
+					else {
+						cout << "올바른 숫자를 입력하세요" << endl;
 
-				cout << "수정할 정보를 고르세요." << endl;
-				cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
-				cin >> revise_number;
-				if (revise_number == 1) {
-					string revise_name;
-					cout << "변경된 이름을 입력하세요 : ";
-					cin >> revise_name;
-					pstmt = con->prepareStatement("UPDATE user_info SET name = ? WHERE pw = ?");
-					pstmt->setString(1, revise_name);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					complete_revise = false;
-					cout << complete_revise;
+					}
 					break;
+				}
 
-				}
-				else if (revise_number == 2) {
-					string revise_pw;
-					cout << "변경된 pw을 입력하세요 : ";
-					cin >> revise_pw;
-					pstmt = con->prepareStatement("UPDATE user_info SET pw = ? WHERE pw = ?");
-					pstmt->setString(1, pw);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 3) {
-					string revise_birth;
-					cout << "변경된 birth을 입력하세요 : ";
-					cin >> revise_birth;
-					pstmt = con->prepareStatement("UPDATE user_info SET birth = ? WHERE pw = ?");
-					pstmt->setString(1, revise_birth);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 4) {
-					string revise_num;
-					cout << "변경된 num을 입력하세요 : ";
-					cin >> revise_num;
-					pstmt = con->prepareStatement("UPDATE user_info SET num = ? WHERE pw = ?");
-					pstmt->setString(1, revise_num);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 5) {
-					string revise_email;
-					cout << "변경된 email을 입력하세요 : ";
-					cin >> revise_email;
-					pstmt = con->prepareStatement("UPDATE user_info SET email = ? WHERE pw = ?");
-					pstmt->setString(1, revise_email);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 6) {
-					string revise_address;
-					cout << "변경된 address을 입력하세요 : ";
-					cin >> revise_address;
-					pstmt = con->prepareStatement("UPDATE user_info SET address = ? WHERE pw = ?");
-					pstmt->setString(1, revise_address);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else {
-					cout << "올바른 숫자를 입력하세요" << endl;
-
-				}
-				break;
 			}
+			if (!passwordMatch) {
+				cout << "비밀번호가 틀립니다." << endl;
+			}
+		}*/
 
-		}
-		if (!passwordMatch) {
-			cout << "비밀번호가 틀립니다." << endl;
-		}
 	}
-
 }
 
 
@@ -566,26 +601,26 @@ int main(/*int argc, char *argv[]*/)
 			cout << "Connecting..." << endl;
 		}
 
-	cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-	int a;
-	cin >> a;
+		cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
+		int a;
+		cin >> a;
 
-	/*a = atoi(argv[1]);*/
-	if (a == 1) {
-		//string id = "";
-		//string pw = "";
-		login();
-		/*beforechatting();*/
-	}
-	else if (a == 2) {
-		my_nick = sign_up();
-	}
-	else if (a == 3) {
-		withdrawal();
-	}
-	else if (a == 4) {
-		revise();
-	}
+		/*a = atoi(argv[1]);*/
+		if (a == 1) {
+			//string id = "";
+			//string pw = "";
+			login();
+			/*beforechatting();*/
+		}
+		else if (a == 2) {
+			my_nick = sign_up();
+		}
+		else if (a == 3) {
+			withdrawal();
+		}
+		else if (a == 4) {
+			revise();
+		}
 
 
 		std::thread th2(chat_recv);
