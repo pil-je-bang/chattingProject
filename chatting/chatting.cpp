@@ -44,7 +44,6 @@ int chat_recv() {
 		ZeroMemory(&buf, MAX_SIZE);
 		if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
 			msg = buf;
-			cout << "버퍼" << buf;
 			std::stringstream ss(msg);  // 문자열을 스트림화
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
@@ -357,7 +356,7 @@ string withdrawal() {
 		if (login && pass) {
 			while (1) {
 				cout << "정말 회원 탈퇴를 하시겠습니까?" << endl;
-				cout << "탈퇴를 원하시면 Yes를 입력하시고 아니면 No를 입력하세요";
+				cout << "탈퇴를 원하시면 yes를 입력하시고 아니면 no를 입력하세요";
 				string withdrawalYN;
 				cin >> withdrawalYN;
 				if (withdrawalYN == "yes") {
