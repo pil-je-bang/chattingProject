@@ -1,11 +1,15 @@
 #pragma comment(lib, "ws2_32.lib") //명시적인 라이브러리의 링크. 윈속 라이브러리 참조
 
 #include <WinSock2.h>
+#include <windows.h>
 #include <string>
 #include <iostream>
 #include <mysql/jdbc.h>
 #include <thread>
 #include <vector>
+#include <sstream>
+#include <chrono>
+#include <iomanip>
 
 #define MAX_SIZE 1024
 #define MAX_CLIENT 3
@@ -44,7 +48,7 @@ void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. cli
 void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
-//void revise(int idx); //회원정보 수정 및 삭제
+string get_time(); //시간
 
 int main() {
     WSADATA wsa;
@@ -90,6 +94,24 @@ int main() {
     WSACleanup();
 
     return 0;
+}
+
+string get_time()
+{
+    using namespace std::chrono;
+    system_clock::time_point tp = system_clock::now();
+    std::stringstream str;
+    __time64_t t1 = system_clock::to_time_t(tp);
+    system_clock::time_point t2 = system_clock::from_time_t(t1);
+    if (t2 > tp)
+        t1 = system_clock::to_time_t(tp - seconds(1));
+
+    tm tm{};
+    localtime_s(&tm, &t1);
+
+    str << std::put_time(&tm, "[%Y-%m-%d %H:%M:%S]");
+
+    return str.str();
 }
 
 void server_init() {
@@ -154,7 +176,7 @@ void add_client() {
                 new_client.user = string(buf);
                 input_id = new_client.user.substr(0, new_client.user.find("-"));
                 input_pw = new_client.user.substr(new_client.user.find("-") + 1);
-
+                new_client.user = input_id;
                 stmt = con->createStatement();
 
                 res = stmt->executeQuery("SELECT id FROM user_info");
@@ -339,6 +361,17 @@ void send_msg(const char* msg) {
         send(sck_list[i].sck, msg, MAX_SIZE, 0);
     }
 }
+void send_dm_msg(const char* msg, int i,int index) {
+    string q = sck_list[index].user + "의 귓속말:";
+    send(sck_list[i].sck, (q+msg).c_str(), MAX_SIZE, 0);
+}
+
+string findsubstr(string const& str, int n) {
+    if (str.length() < n) {
+        return str;
+    }
+    return str.substr(0, n);
+}
 
 void recv_msg(int idx) {
     char buf[MAX_SIZE] = { };
@@ -366,23 +399,42 @@ void recv_msg(int idx) {
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
         if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것
-            sck_list[idx].user = sck_list[idx].user.substr(0, sck_list[idx].user.find("-"));
-            msg = sck_list[idx].user + " : " + buf;
-            string msg_client_info = msg.substr(0, msg.find("["));
-            string msg_time = msg.substr(msg.find("["));
-            string msg_client = msg_client_info.substr(msg_client_info.find(":")+2);
-            msg = msg_time + " " + sck_list[idx].user + " : " + msg_client;
-            cout << msg << endl;
-            send_msg(msg.c_str());
-            /*send_msg(msg_client.c_str());*/
+            string t = buf;
+            if (findsubstr(t, 3) == "/dm") {
+                string a = buf;
+                string dm = a.substr(4);
+                string dm_message = dm.substr(dm.find(" ")+1);
+                string dm_id = dm.erase(dm.find(" "), dm.size());
+                
+                for (int i = 0; i < sck_list.size(); i++) {
+                    cout << "반복문"<<endl;
+                    cout << sck_list[i].user << endl;
+                    if(sck_list[i].user == dm_id) {
+                        send_dm_msg( dm_message.c_str(), i,idx);
+                        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+                        cout << "dm" << dm_message;
+                    }
+                }
+            }
+            else {
+                sck_list[idx].user = sck_list[idx].user.substr(0, sck_list[idx].user.find("-"));
+                msg = sck_list[idx].user + " : " + buf;
+           
+                string msg_time = get_time();
+                
+                msg = msg_time + " " + sck_list[idx].user + " : " + buf;
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                cout << msg << endl;
+                send_msg(msg.c_str());
 
-            pstmt = con->prepareStatement("INSERT INTO chatting(시간,id, 내용) VALUES(?,?,?)"); // INSERT
-            pstmt->setString(1, msg_time);
-            pstmt->setString(2, sck_list[idx].user);
-            pstmt->setString(3, msg_client);
-            pstmt->execute();
-            // MySQL Connector/C++ 정리
-            delete pstmt;
+                pstmt = con->prepareStatement("INSERT INTO chatting(시간,id, 내용) VALUES(?,?,?)"); // INSERT
+                pstmt->setString(1, msg_time);
+                pstmt->setString(2, sck_list[idx].user);
+                pstmt->setString(3, buf);
+                pstmt->execute();
+                // MySQL Connector/C++ 정리
+                delete pstmt;
+            }
         }
         else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";

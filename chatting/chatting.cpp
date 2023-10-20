@@ -7,7 +7,6 @@
 #include <mysql/jdbc.h>
 #include <thread>
 #include <sstream>
-#include <chrono>
 #include <iomanip>
 #include <vector>
 #include <regex>
@@ -60,23 +59,6 @@ int chat_recv() {
 	}
 }
 
-string get_time()
-{
-	using namespace std::chrono;
-	system_clock::time_point tp = system_clock::now();
-	std::stringstream str;
-	__time64_t t1 = system_clock::to_time_t(tp);
-	system_clock::time_point t2 = system_clock::from_time_t(t1);
-	if (t2 > tp)
-		t1 = system_clock::to_time_t(tp - seconds(1));
-
-	tm tm{};
-	localtime_s(&tm, &t1);
-
-	str << std::put_time(&tm, "[%Y-%m-%d %H:%M:%S]");
-
-	return str.str();
-}
 
 string sign_up() {
 	send(client_sock, "2", 1, 0);
@@ -493,9 +475,8 @@ int main(/*int argc, char *argv[]*/)
 
 		while (1) {
 			string text;
-			/*std::getline(cin, text);*/
-			cin >> text;
-			text += get_time();
+			std::getline(cin, text);
+			/*cin >> text;*/
 			const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
 			send(client_sock, buffer, strlen(buffer), 0);
 		}
