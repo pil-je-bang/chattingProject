@@ -16,7 +16,7 @@ using std::string;
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
-const string password = "(()()&pj0907"; // 데이터베이스 접속 비밀번호
+const string password = "admin"; // 데이터베이스 접속 비밀번호
 
 
 
@@ -24,8 +24,6 @@ struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     SOCKET sck;
     string user;
 };
-
-
 
 // MySQL Connector/C++ 초기화
 sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
@@ -43,6 +41,8 @@ void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. cli
 void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
+void login(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize);
+void signup(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize);
 
 int main() {
     WSADATA wsa;
@@ -58,6 +58,7 @@ int main() {
         for (int i = 0; i < MAX_CLIENT; i++) {
             // 인원 수 만큼 thread 생성해서 각각의 클라이언트가 동시에 소통할 수 있도록 함.
             th1[i] = std::thread(add_client);
+
         }
         //std::thread th1(add_client); // 이렇게 하면 하나의 client만 받아짐...
 
@@ -113,45 +114,49 @@ void server_init() {
 
 
 void add_client() {
-    
-
-    bool ID = false;
-    bool PW = false;
-    string input_id, input_pw;
     SOCKET_INFO new_client = {};
     SOCKADDR_IN addr = {};
     int addrsize = sizeof(addr);
     new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
-    
-
-
+    char buf[MAX_SIZE] = { };
     while (1) {
+        recv(new_client.sck, buf, sizeof("1"), 0);
+        cout << buf << endl;
 
+        if (buf[0] == '1') {
+            login(new_client, addr, addrsize);
+        }
+        else if (buf[0] == '2') {
+            signup(new_client, addr, addrsize);
+        }
+    }
+}
+
+void login(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize ) {
+    bool ID = false;
+    bool PW = false;
+    string input_id, input_pw;
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+    // 데이터베이스 선택
+    con->setSchema("kdt");
+    // db 한글 저장을 위한 셋팅
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+    while (1) {
         char buf[MAX_SIZE] = { };
-        
-
         ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
         recv(new_client.sck, buf, MAX_SIZE, 0);
         new_client.user = string(buf);
         input_id = new_client.user.substr(0, new_client.user.find("-"));
         input_pw = new_client.user.substr(new_client.user.find("-") + 1);
-
-        try {
-            driver = sql::mysql::get_mysql_driver_instance();
-            con = driver->connect(server, username, password);
-        }
-        catch (sql::SQLException& e) {
-            cout << "Could not connect to server. Error message: " << e.what() << endl;
-            exit(1);
-        }
-
-        // 데이터베이스 선택
-        con->setSchema("kdt");
-
-        // db 한글 저장을 위한 셋팅 
-        stmt = con->createStatement();
-        stmt->execute("set names euckr");
-        if (stmt) { delete stmt; stmt = nullptr; }
 
         stmt = con->createStatement();
 
@@ -160,7 +165,6 @@ void add_client() {
             std::string id = res->getString("id");
             if (input_id == id) { ID = true; }
         }
-
         stmt = con->createStatement();
         res = stmt->executeQuery("SELECT pw FROM user_info where id =\"" + input_id + "\"");
         while (res->next() == true) {
@@ -187,11 +191,43 @@ void add_client() {
     client_count++; // client 수 증가.
     cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
     send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
-
-
-
     th.join();
 }
+
+void signup(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize) {
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+    // 데이터베이스 선택
+    con->setSchema("kdt");
+    // db 한글 저장을 위한 셋팅
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+
+    
+    ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
+    std::vector<string> user_info = { "아이디","이름","비밀번호(영어,숫자,특수문자 조합)","birth(yyyy-mm-dd)","연락처 (010-xxxx-xxxx)","email","address" };
+    for (int i = 0; i < 7; i++) {
+        char buf[MAX_SIZE] = { };
+        recv(new_client.sck, buf, sizeof(buf), 0);
+        user_info[i] = buf;
+        cout << user_info[i]<< endl;
+    }
+    pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
+    for (int i = 0; i < 7; i++) {
+        pstmt->setString(i+1 , user_info[i]);
+        
+    }
+    pstmt->execute();
+    delete pstmt;
+}
+
 
 void send_msg(const char* msg) {
     for (int i = 0; i < client_count; i++) { // 접속해 있는 모든 client에게 메시지 전송
@@ -230,7 +266,7 @@ void recv_msg(int idx) {
             cout << msg << endl;
             send_msg(msg.c_str());
 
-            pstmt = con->prepareStatement("INSERT INTO chatting(id, 내용) VALUES(?,?)"); // INSERT
+            pstmt = con->prepareStatement("INSERT INTO chatting VALUES(?,?)"); // INSERT
             pstmt->setString(1, sck_list[idx].user);
             pstmt->setString(2, buf);
             pstmt->execute();

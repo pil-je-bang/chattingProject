@@ -33,7 +33,7 @@ sql::ResultSet* res = NULL;
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
-const string password = "(()()&pj0907"; // 데이터베이스 접속 비밀번호
+const string password = "admin"; // 데이터베이스 접속 비밀번호
 
 
 int chat_recv() {
@@ -78,22 +78,6 @@ string get_time()
 }
 
 string sign_up() {
-	try {
-		driver = sql::mysql::get_mysql_driver_instance();
-		con = driver->connect(server, username, password);
-	}
-	catch (sql::SQLException& e) {
-		cout << "Could not connect to server. Error message: " << e.what() << endl;
-		exit(1);
-	}
-	// 데이터베이스 선택
-	con->setSchema("kdt");
-
-	// db 한글 저장을 위한 셋팅 
-	stmt = con->createStatement();
-	stmt->execute("set names euckr");
-	if (stmt) { delete stmt; stmt = nullptr; }
-
 	vector<string> user_info = { "아이디","이름","비밀번호(영어,숫자,특수문자 조합)","birth(yyyy-mm-dd)","연락처 (010-xxxx-xxxx)","email","address" };
 	int specialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+' };
 	bool numberCheck = false;  // 숫자 check
@@ -102,13 +86,11 @@ string sign_up() {
 	bool is_there_same = 1;
 	string in;
 
-
-
 	while (is_there_same) {
 		in = "";
 		cout << "============회원가입==============" << endl;
 		cout << "아이디 :";
-		getline(cin, in);
+		cin >> in;
 		int id_len = in.length();
 
 		for (int i = 0; i < id_len; i++)
@@ -121,22 +103,8 @@ string sign_up() {
 				englishCheck = isalpha(check);
 		}
 		if (numberCheck && englishCheck) {
-			stmt = con->createStatement();
-
-			res = stmt->executeQuery("SELECT id FROM user_info");
-			while (res->next()) {
-				std::string id = res->getString(1);
-				if (in == id) {
-					cout << "이미 존재하는 아이디 입니다." << endl;
-					Sleep(500);
-					is_there_same = true;
-					break;
-				}
-				else {
-					is_there_same = false;
-				}
-
-			}
+			send(client_sock, in.c_str(), id_len, 0);
+			break;
 		}
 		else
 		{
@@ -148,11 +116,7 @@ string sign_up() {
 		}
 		system("cls");
 	}
-
-	user_info[0] = in;
 	string input = "";
-	int y = 0;
-
 	for (int i = 1; i < 7; i++) {
 
 		if (i == 2) {
@@ -186,9 +150,13 @@ string sign_up() {
 					Sleep(1500);
 					cout << "pw :";
 				}
-				else
+				else {
 					user_info[i] = input;
+					send(client_sock, input.c_str(), input.length(), 0);
+
+				}
 			}
+			
 		}
 		else if (i == 3) {
 			cout << user_info[i] << ": ";
@@ -204,8 +172,10 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
+
 		}
 		else if (i == 4) {
 			cout << user_info[i] << ": ";
@@ -219,6 +189,7 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
 		}
@@ -234,13 +205,22 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
 		}
-		else {
+		else if(i==1) {
 			cout << user_info[i] << ": ";
 			cin >> input;
 			user_info[i] = input;
+			send(client_sock, input.c_str(), input.length(), 0);
+			input = "";
+		}
+		else if (i == 6) {
+			cout << user_info[i] << ": ";
+			cin >> input;
+			user_info[i] = input;
+			send(client_sock, input.c_str(), input.length(), 0);
 		}
 	}
 
@@ -251,13 +231,7 @@ string sign_up() {
 	//stmt->execute("DROP TABLE IF EXISTS user_info");// 채팅 시작 할때 생성해야 됨
 	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
 	
-	pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
-	for (int i = 0; i < 7; i++) {
-		pstmt->setString(i + 1, user_info[i]);
-	}
-	pstmt->execute();
-	delete pstmt;
-	cout << "가입완료" << endl;
+
 	return in;
 }
 
@@ -281,8 +255,6 @@ string login(/*string input_id, string input_pw*/) {
 		string login;
 
 		login = (input_id + "-" + input_pw);
-
-
 		// 서버에 로그인 정보 전송
 		send(client_sock, login.c_str(), login.length(), 0);
 
@@ -301,6 +273,20 @@ string login(/*string input_id, string input_pw*/) {
 			login_success == false;
 		}
 	}
+	std::thread th2(chat_recv);
+	cout << "채팅이 시작되었습니다.";
+	cout << "\n";
+
+	while (1) {
+		string text;
+		/*std::getline(cin, text);*/
+		cin >> text;
+		text += get_time();
+		const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+		send(client_sock, buffer, strlen(buffer), 0);
+	}
+	th2.join();
+	closesocket(client_sock);
 	return input_id;
 }
 
@@ -548,7 +534,7 @@ int main(/*int argc, char *argv[]*/)
 	// 실행에 성공하면 0을, 실패하면 그 이외의 값을 반환.
 	// 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
 	int code = WSAStartup(MAKEWORD(2, 2), &wsa);
-
+	char buf[MAX_SIZE] = {};
 	if (!code) {
 		client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
 
@@ -556,7 +542,7 @@ int main(/*int argc, char *argv[]*/)
 		SOCKADDR_IN client_addr = {};
 		client_addr.sin_family = AF_INET;
 		client_addr.sin_port = htons(7777);
-		InetPton(AF_INET, TEXT("192.168.0.63"), &client_addr.sin_addr); //192.168.0.63   192.168.195.243
+		InetPton(AF_INET, TEXT("192.168.0.42"), &client_addr.sin_addr); //192.168.0.63   192.168.195.243
 
 		while (1) {
 			if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // 위에 설정한 정보에 해당하는 server로 연결!
@@ -565,47 +551,21 @@ int main(/*int argc, char *argv[]*/)
 			}
 			cout << "Connecting..." << endl;
 		}
-
-	cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-	int a;
-	cin >> a;
-
-	/*a = atoi(argv[1]);*/
-	if (a == 1) {
-		//string id = "";
-		//string pw = "";
-		login();
-		/*beforechatting();*/
-	}
-	else if (a == 2) {
-		my_nick = sign_up();
-	}
-	else if (a == 3) {
-		withdrawal();
-	}
-	else if (a == 4) {
-		revise();
-	}
-
-
-		std::thread th2(chat_recv);
-		cout << "채팅이 시작되었습니다.";
-		cout << "\n";
-
 		while (1) {
-			string text;
-			/*std::getline(cin, text);*/
-			cin >> text;
-			text += get_time();
-			const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-			send(client_sock, buffer, strlen(buffer), 0);
+			cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
+			string a;
+			cin >> a;
+			send(client_sock, a.c_str(), a.length(), 0);
+			if (a == "1") {
+				login();
+			}
+			else if (a == "2") {
+				sign_up();
+			}
+			delete stmt;
+			delete res;
+			delete con;
 		}
-		th2.join();
-		closesocket(client_sock);
-
-		delete stmt;
-		delete res;
-		delete con;
 	}
 	WSACleanup();
 
