@@ -194,7 +194,39 @@ void add_client() {
 
         }
         else if (strcmp(buf, "2") == 0) {
-
+            std::vector<string> user_info = { "아이디","이름","비밀번호(영어,숫자,특수문자 조합)","birth(yyyy-mm-dd)","연락처 (010-xxxx-xxxx)","email","address" };
+            
+            
+            for (int i = 0; i < 7; i++) {
+                char buf[MAX_SIZE] = { };
+                recv(new_client.sck, buf, sizeof(buf), 0);
+                if (i == 0) {
+                    bool t = true;
+                    stmt = con->createStatement();
+                    res = stmt->executeQuery("SELECT id FROM user_info");
+                    while (res->next() == true) {
+                        std::string id = res->getString("id");
+                        cout << id << endl;
+                        if (buf == id) {
+                            t = false;
+                            send(new_client.sck, "false", sizeof("false"), 0);
+                            i--;
+                            break;
+                        }
+                    }
+                    if (t)
+                        send(new_client.sck, "true", sizeof("true"), 0);
+                }
+                if (i >= 0) {
+                    user_info[i] = buf;
+                }
+            }
+            pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
+            for (int i = 0; i < 7; i++) {
+                pstmt->setString(i + 1, user_info[i]);
+            }
+            pstmt->execute();
+            delete pstmt;
         }
         else if (strcmp(buf, "3") == 0) {
             while (1) {
@@ -220,7 +252,7 @@ void add_client() {
 
                 if (ID && PW) {
                     send(new_client.sck, "true", strlen("true"), 0);
-                    sck_list.push_back(new_client);
+                    /*sck_list.push_back(new_client);*/
                     break;
                 }
                 else {

@@ -79,23 +79,7 @@ string get_time()
 }
 
 string sign_up() {
-
-
-	try {
-		driver = sql::mysql::get_mysql_driver_instance();
-		con = driver->connect(server, username, password);
-	}
-	catch (sql::SQLException& e) {
-		cout << "Could not connect to server. Error message: " << e.what() << endl;
-		exit(1);
-	}
-	// 데이터베이스 선택
-	con->setSchema("kdt");
-
-	// db 한글 저장을 위한 셋팅 
-	stmt = con->createStatement();
-	stmt->execute("set names euckr");
-	if (stmt) { delete stmt; stmt = nullptr; }
+	send(client_sock, "2", 1, 0);
 
 	vector<string> user_info = { "아이디","이름","비밀번호(영어,숫자,특수문자 조합)","birth(yyyy-mm-dd)","연락처 (010-xxxx-xxxx)","email","address" };
 	int specialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+' };
@@ -105,40 +89,36 @@ string sign_up() {
 	bool is_there_same = 1;
 	string in;
 
+	bool id = true;
 
+	while (id) {
 
-	while (is_there_same) {
+		char buf[MAX_SIZE] = {};
 		in = "";
 		cout << "============회원가입==============" << endl;
 		cout << "아이디 :";
-		getline(cin, in);
+		cin >> in;
 		int id_len = in.length();
-
 		for (int i = 0; i < id_len; i++)
 		{
 			char check = in[i];
 			if (!numberCheck)
 				numberCheck = isdigit(check);
-
 			if (!englishCheck)
 				englishCheck = isalpha(check);
 		}
+
 		if (numberCheck && englishCheck) {
-			stmt = con->createStatement();
-
-			res = stmt->executeQuery("SELECT id FROM user_info");
-			while (res->next()) {
-				std::string id = res->getString(1);
-				if (in == id) {
-					cout << "이미 존재하는 아이디 입니다." << endl;
-					Sleep(500);
-					is_there_same = true;
-					break;
-				}
-				else {
-					is_there_same = false;
-				}
-
+			send(client_sock, in.c_str(), id_len, 0);
+			cout << "샌드 됨?";
+			recv(client_sock, buf, sizeof(buf), 0);
+			cout << "buf" << buf;
+			if (strcmp(buf, "false") == 0) {
+				id = true;
+			}
+			else {
+				id = false;
+				Sleep(1500);
 			}
 		}
 		else
@@ -152,10 +132,7 @@ string sign_up() {
 		system("cls");
 	}
 
-	user_info[0] = in;
 	string input = "";
-	int y = 0;
-
 	for (int i = 1; i < 7; i++) {
 
 		if (i == 2) {
@@ -189,9 +166,13 @@ string sign_up() {
 					Sleep(1500);
 					cout << "pw :";
 				}
-				else
+				else {
 					user_info[i] = input;
+					send(client_sock, input.c_str(), input.length(), 0);
+
+				}
 			}
+
 		}
 		else if (i == 3) {
 			cout << user_info[i] << ": ";
@@ -207,8 +188,10 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
+
 		}
 		else if (i == 4) {
 			cout << user_info[i] << ": ";
@@ -222,6 +205,7 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
 		}
@@ -237,13 +221,22 @@ string sign_up() {
 				else {
 					user_info[i] = input;
 					cnt = false;
+					send(client_sock, input.c_str(), input.length(), 0);
 				}
 			}
 		}
-		else {
+		else if (i == 1) {
 			cout << user_info[i] << ": ";
 			cin >> input;
 			user_info[i] = input;
+			send(client_sock, input.c_str(), input.length(), 0);
+			input = "";
+		}
+		else if (i == 6) {
+			cout << user_info[i] << ": ";
+			cin >> input;
+			user_info[i] = input;
+			send(client_sock, input.c_str(), input.length(), 0);
 		}
 	}
 
@@ -253,14 +246,8 @@ string sign_up() {
 
 	//stmt->execute("DROP TABLE IF EXISTS user_info");// 채팅 시작 할때 생성해야 됨
 	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
-	
-	pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
-	for (int i = 0; i < 7; i++) {
-		pstmt->setString(i + 1, user_info[i]);
-	}
-	pstmt->execute();
-	delete pstmt;
-	cout << "가입완료" << endl;
+
+
 	return in;
 }
 
@@ -308,7 +295,7 @@ string login(/*string input_id, string input_pw*/) {
 	return input_id;
 }
 
-string withdrawal() {
+void withdrawal() {
 	string input_id = "";
 	string input_pw = "";
 	send(client_sock, "3", 1, 0);
@@ -354,17 +341,14 @@ string withdrawal() {
 					continue;
 				}
 			}
-			break;
+			
 		}
 		else {
 			cout << "회원정보가 맞지 않습니다." << endl;
+			continue;
 		}
+		break;
 	}
-	delete stmt;
-	// MySQL Connector/C++ 정리
-	delete res;
-	delete con;
-
 }
 
 void beforechatting() {
@@ -492,8 +476,7 @@ int main(/*int argc, char *argv[]*/)
 				/*beforechatting();*/
 			}
 			else if (a == 2) {
-				my_nick = sign_up();
-				break;
+				sign_up();
 			}
 			else if (a == 3) {
 				withdrawal();
