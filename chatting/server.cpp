@@ -150,6 +150,7 @@ void login(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize ) {
     stmt = con->createStatement();
     stmt->execute("set names euckr");
     if (stmt) { delete stmt; stmt = nullptr; }
+
     while (1) {
         char buf[MAX_SIZE] = { };
         ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
@@ -216,13 +217,30 @@ void signup(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize) {
     for (int i = 0; i < 7; i++) {
         char buf[MAX_SIZE] = { };
         recv(new_client.sck, buf, sizeof(buf), 0);
-        user_info[i] = buf;
-        cout << user_info[i]<< endl;
+        if (i == 0) {
+            bool t = true;
+            stmt = con->createStatement();
+            res = stmt->executeQuery("SELECT id FROM user_info");
+            while (res->next() == true) {
+                std::string id = res->getString("id");
+                cout << id << endl;
+                if (buf == id) {
+                    t = false;
+                    send(new_client.sck, "false", sizeof("false"), 0);
+                    i--;
+                    break;
+                }
+            }
+            if(t)
+                send(new_client.sck, "true", sizeof("true"), 0);
+        }
+        if (i >= 0) {
+            user_info[i] = buf;
+        }
     }
     pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
     for (int i = 0; i < 7; i++) {
         pstmt->setString(i+1 , user_info[i]);
-        
     }
     pstmt->execute();
     delete pstmt;

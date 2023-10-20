@@ -85,37 +85,47 @@ string sign_up() {
 	bool specialCheck = false; // 특수 check
 	bool is_there_same = 1;
 	string in;
+	
+	bool id = true;
 
-	while (is_there_same) {
-		in = "";
-		cout << "============회원가입==============" << endl;
-		cout << "아이디 :";
-		cin >> in;
-		int id_len = in.length();
+		while (id) {
+			char buf[MAX_SIZE] = {};
+			in = "";
+			cout << "============회원가입==============" << endl;
+			cout << "아이디 :";
+			cin >> in;
+			int id_len = in.length();
+			for (int i = 0; i < id_len; i++)
+			{
+				char check = in[i];
+				if (!numberCheck)
+					numberCheck = isdigit(check);
+				if (!englishCheck)
+					englishCheck = isalpha(check);
+			}
 
-		for (int i = 0; i < id_len; i++)
-		{
-			char check = in[i];
-			if (!numberCheck)
-				numberCheck = isdigit(check);
-
-			if (!englishCheck)
-				englishCheck = isalpha(check);
+			if (numberCheck && englishCheck) {
+				send(client_sock, in.c_str(), id_len, 0);
+				recv(client_sock, buf, sizeof(buf), 0);
+				if (strcmp(buf, "false") == 0) {
+					id = true;
+				}
+				else {
+					id = false;
+					Sleep(1500);
+				}
+			}
+			else
+			{
+				cout << "숫자와 영어의 조합으로 id를 생성하세요." << endl;
+				numberCheck = false;  // 숫자 check
+				englishCheck = false; // 영어 check
+				specialCheck = false; // 특수 check
+				Sleep(1500);
+			}
+			system("cls");
 		}
-		if (numberCheck && englishCheck) {
-			send(client_sock, in.c_str(), id_len, 0);
-			break;
-		}
-		else
-		{
-			cout << "숫자와 영어의 조합으로 id를 생성하세요." << endl;
-			numberCheck = false;  // 숫자 check
-			englishCheck = false; // 영어 check
-			specialCheck = false; // 특수 check
-			Sleep(1500);
-		}
-		system("cls");
-	}
+		
 	string input = "";
 	for (int i = 1; i < 7; i++) {
 
