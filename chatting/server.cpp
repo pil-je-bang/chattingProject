@@ -223,7 +223,6 @@ void signup(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize) {
             res = stmt->executeQuery("SELECT id FROM user_info");
             while (res->next() == true) {
                 std::string id = res->getString("id");
-                cout << id << endl;
                 if (buf == id) {
                     t = false;
                     send(new_client.sck, "false", sizeof("false"), 0);
@@ -240,6 +239,7 @@ void signup(SOCKET_INFO new_client, SOCKADDR_IN addr, int addrsize) {
     }
     pstmt = con->prepareStatement("INSERT INTO user_info(id,name,pw,birth,num,email,address) VALUES(?,?,?,?,?,?,?)"); // INSERT
     for (int i = 0; i < 7; i++) {
+        cout << i << user_info[i]<<endl;
         pstmt->setString(i+1 , user_info[i]);
     }
     pstmt->execute();
