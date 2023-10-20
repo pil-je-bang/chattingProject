@@ -44,6 +44,8 @@ int chat_recv() {
 		ZeroMemory(&buf, MAX_SIZE);
 		if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
 			msg = buf;
+			size_t startPos = msg.find("] ") + 2;
+			msg = msg.substr(startPos, msg.find(" : ", startPos) - startPos);
 			std::stringstream ss(msg);  // 문자열을 스트림화
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
@@ -71,8 +73,7 @@ string get_time()
 	tm tm{};
 	localtime_s(&tm, &t1);
 
-	str << std::put_time(&tm, "[%Y-%m-%d %H:%M:%S]") << std::setfill('0') << std::setw(3)
-		<< (std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count() % 1000);
+	str << std::put_time(&tm, "[%Y-%m-%d %H:%M:%S]");
 
 	return str.str();
 }
@@ -310,9 +311,7 @@ string login(/*string input_id, string input_pw*/) {
 string withdrawal() {
 	string input_id = "";
 	string input_pw = "";
-	bool login = false;
-	bool pass = false;
-	bool withdrawal = false;
+	send(client_sock, "3", 1, 0);
 
 
 	while (1) {
@@ -321,78 +320,44 @@ string withdrawal() {
 		cin >> input_id;
 		cout << "pw:";
 		cin >> input_pw;
+		string withdrawal_info;
+		withdrawal_info = input_id + "-" + input_pw;
 
-		try {
-			driver = sql::mysql::get_mysql_driver_instance();
-			con = driver->connect(server, username, password);
-		}
-		catch (sql::SQLException& e) {
-			cout << "Could not connect to server. Error message: " << e.what() << endl;
-			exit(1);
-		}
+		send(client_sock, withdrawal_info.c_str(), withdrawal_info.length(), 0);
 
-		// 데이터베이스 선택
-		con->setSchema("kdt");
+		char buf[MAX_SIZE] = { };
+		recv(client_sock, buf, MAX_SIZE, 0);
 
-		// db 한글 저장을 위한 셋팅 
-		stmt = con->createStatement();
-		stmt->execute("set names euckr");
-		if (stmt) { delete stmt; stmt = nullptr; }
-
-		// 데이터베이스 쿼리 실행
-		stmt = con->createStatement();
-
-		res = stmt->executeQuery("SELECT id FROM user_info");
-		while (res->next() == true) {
-			std::string id = res->getString("id");
-			if (input_id == id) { login = true; }
-		}
-
-		res = stmt->executeQuery("SELECT pw FROM user_info where id =\"" + input_id + "\"");
-		while (res->next() == true) {
-			std::string pw = res->getString("pw");
-			if (input_pw == pw) { pass = true; }
-		}
-
-
-
-		if (login && pass) {
+		// 결과 출력
+		if (strcmp(buf, "true") == 0) {
 			while (1) {
 				cout << "정말 회원 탈퇴를 하시겠습니까?" << endl;
 				cout << "탈퇴를 원하시면 yes를 입력하시고 아니면 no를 입력하세요";
 				string withdrawalYN;
 				cin >> withdrawalYN;
-				if (withdrawalYN == "yes") {
-					string newId = "알수없음";
+				send(client_sock, withdrawalYN.c_str(), withdrawalYN.length(), 0);
 
+				char buf2[MAX_SIZE] = { };
+				recv(client_sock, buf2, MAX_SIZE, 0);
+
+				if (strcmp(buf2, "true") == 0) {
 					cout << "그동안 이용해주셔서 감사합니다." << endl;
-
-					pstmt = con->prepareStatement("UPDATE chatting SET id = ? WHERE id = ?");
-					pstmt->setString(1, newId);     // newId는 변경하려는 새로운 값
-					pstmt->setString(2, input_id); // input_id는 변경하려는 특정 id
-					pstmt->executeUpdate();
-
-					pstmt = con->prepareStatement("DELETE FROM user_info WHERE id = ?");
-					pstmt->setString(1, input_id);
-					pstmt->executeUpdate();
 					cout << "회원 탈퇴가 완료되었습니다.";
-					withdrawal == true;
 					break;
 				}
-				else if (withdrawalYN == "no") {
+				else if (strcmp(buf2, "false") == 0) {
 					cout << "다시 돌아오신걸 환영합니다.";
 					break;
 				}
 				else {
+					cout << "yes나 no만 입력하세요";
 					continue;
 				}
 			}
 			break;
 		}
-
-
 		else {
-			cout << "회원정보가 맞지 않습니다."<<endl;
+			cout << "회원정보가 맞지 않습니다." << endl;
 		}
 	}
 	delete stmt;
@@ -441,6 +406,7 @@ void revise() {
 			cin >> revise_number;
 		}
 		char buf1[MAX_SIZE] = { };
+
 		if (revise_number == "1") {
 			cout << "변경된 이름을 입력하세요 : ";
 			cin >> revise_information;
@@ -480,96 +446,6 @@ void revise() {
 			complete_revise = false;
 			break;
 		}
-			
-		
-		
-		
-		
-
-		
-
-					/*if (revise_number == 1) {
-						
-						cout << "변경된 이름을 입력하세요 : ";
-						cin >> revise_name;
-						pstmt = con->prepareStatement("UPDATE user_info SET name = ? WHERE pw = ?");
-						pstmt->setString(1, revise_name);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						complete_revise = false;
-						cout << complete_revise;
-						break;
-
-					}
-					else if (revise_number == 2) {
-						string revise_pw;
-						cout << "변경된 pw을 입력하세요 : ";
-						cin >> revise_pw;
-						pstmt = con->prepareStatement("UPDATE user_info SET pw = ? WHERE pw = ?");
-						pstmt->setString(1, pw);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						break;
-					}
-					else if (revise_number == 3) {
-						string revise_birth;
-						cout << "변경된 birth을 입력하세요 : ";
-						cin >> revise_birth;
-						pstmt = con->prepareStatement("UPDATE user_info SET birth = ? WHERE pw = ?");
-						pstmt->setString(1, revise_birth);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						break;
-					}
-					else if (revise_number == 4) {
-						string revise_num;
-						cout << "변경된 num을 입력하세요 : ";
-						cin >> revise_num;
-						pstmt = con->prepareStatement("UPDATE user_info SET num = ? WHERE pw = ?");
-						pstmt->setString(1, revise_num);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						break;
-					}
-					else if (revise_number == 5) {
-						string revise_email;
-						cout << "변경된 email을 입력하세요 : ";
-						cin >> revise_email;
-						pstmt = con->prepareStatement("UPDATE user_info SET email = ? WHERE pw = ?");
-						pstmt->setString(1, revise_email);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						break;
-					}
-					else if (revise_number == 6) {
-						string revise_address;
-						cout << "변경된 address을 입력하세요 : ";
-						cin >> revise_address;
-						pstmt = con->prepareStatement("UPDATE user_info SET address = ? WHERE pw = ?");
-						pstmt->setString(1, revise_address);
-						pstmt->setString(2, input_pw);
-						pstmt->executeUpdate();
-						cout << "변경이 완료되었습니다.";
-						break;
-					}
-					else {
-						cout << "올바른 숫자를 입력하세요" << endl;
-
-					}
-					break;
-				}
-
-			}
-			if (!passwordMatch) {
-				cout << "비밀번호가 틀립니다." << endl;
-			}
-		}*/
-
 	}
 }
 
@@ -602,25 +478,29 @@ int main(/*int argc, char *argv[]*/)
 			cout << "Connecting..." << endl;
 		}
 
-		cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-		int a;
-		cin >> a;
+		while(1) {
+			cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
+			int a;
+			cin >> a;
 
-		/*a = atoi(argv[1]);*/
-		if (a == 1) {
-			//string id = "";
-			//string pw = "";
-			login();
-			/*beforechatting();*/
-		}
-		else if (a == 2) {
-			my_nick = sign_up();
-		}
-		else if (a == 3) {
-			withdrawal();
-		}
-		else if (a == 4) {
-			revise();
+			/*a = atoi(argv[1]);*/
+			if (a == 1) {
+				//string id = "";
+				//string pw = "";
+				login();
+				break;
+				/*beforechatting();*/
+			}
+			else if (a == 2) {
+				my_nick = sign_up();
+				break;
+			}
+			else if (a == 3) {
+				withdrawal();
+			}
+			else if (a == 4) {
+				revise();
+			}
 		}
 
 
