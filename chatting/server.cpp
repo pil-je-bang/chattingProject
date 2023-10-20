@@ -64,10 +64,6 @@ int main() {
         }
         //std::thread th1(add_client); // 이렇게 하면 하나의 client만 받아짐...
         
-        //std::thread th3[MAX_CLIENT];
-        //    for (int i = 0; i < MAX_CLIENT; i++) {
-        //        th3[i] = std::thread(revise);
-        //}
 
         while (1) { // 무한 반복문을 사용하여 서버가 계속해서 채팅 보낼 수 있는 상태를 만들어 줌. 반복문을 사용하지 않으면 한 번만 보낼 수 있음.
             string text, msg = "";
@@ -79,7 +75,6 @@ int main() {
 
         for (int i = 0; i < MAX_CLIENT; i++) {
             th1[i].join();
-       /*     th3[i].join();*/
             //join : 해당하는 thread 들이 실행을 종료하면 리턴하는 함수.
             //join 함수가 없으면 main 함수가 먼저 종료되어서 thread가 소멸하게 됨.
             //thread 작업이 끝날 때까지 main 함수가 끝나지 않도록 해줌.
