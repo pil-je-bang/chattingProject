@@ -7,7 +7,6 @@
 #include <mysql/jdbc.h>
 #include <thread>
 #include <sstream>
-#include <chrono>
 #include <iomanip>
 #include <vector>
 #include <regex>
@@ -44,6 +43,8 @@ int chat_recv() {
 		ZeroMemory(&buf, MAX_SIZE);
 		if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
 			msg = buf;
+			size_t startPos = msg.find("] ") + 2;
+			msg = msg.substr(startPos, msg.find(" : ", startPos) - startPos);
 			std::stringstream ss(msg);  // 문자열을 스트림화
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
@@ -57,27 +58,9 @@ int chat_recv() {
 		}
 	}
 }
-
-string get_time()
-{
-	using namespace std::chrono;
-	system_clock::time_point tp = system_clock::now();
-	std::stringstream str;
-	__time64_t t1 = system_clock::to_time_t(tp);
-	system_clock::time_point t2 = system_clock::from_time_t(t1);
-	if (t2 > tp)
-		t1 = system_clock::to_time_t(tp - seconds(1));
-
-	tm tm{};
-	localtime_s(&tm, &t1);
-
-	str << std::put_time(&tm, "[%Y-%m-%d %H:%M:%S]") << std::setfill('0') << std::setw(3)
-		<< (std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count() % 1000);
-
-	return str.str();
-}
-
 string sign_up() {
+	send(client_sock, "2", 1, 0);
+
 	vector<string> user_info = { "아이디","이름","비밀번호(영어,숫자,특수문자 조합)","birth(yyyy-mm-dd)","연락처 (010-xxxx-xxxx)","email","address" };
 	int specialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+' };
 	bool numberCheck = false;  // 숫자 check
@@ -85,47 +68,50 @@ string sign_up() {
 	bool specialCheck = false; // 특수 check
 	bool is_there_same = 1;
 	string in;
-	
+
 	bool id = true;
 
-		while (id) {
-			char buf[MAX_SIZE] = {};
-			in = "";
-			cout << "============회원가입==============" << endl;
-			cout << "아이디 :";
-			cin >> in;
-			int id_len = in.length();
-			for (int i = 0; i < id_len; i++)
-			{
-				char check = in[i];
-				if (!numberCheck)
-					numberCheck = isdigit(check);
-				if (!englishCheck)
-					englishCheck = isalpha(check);
-			}
+	while (id) {
 
-			if (numberCheck && englishCheck) {
-				send(client_sock, in.c_str(), id_len, 0);
-				recv(client_sock, buf, sizeof(buf), 0);
-				if (strcmp(buf, "false") == 0) {
-					id = true;
-				}
-				else {
-					id = false;
-					Sleep(1500);
-				}
+		char buf[MAX_SIZE] = {};
+		in = "";
+		cout << "============회원가입==============" << endl;
+		cout << "아이디 :";
+		cin >> in;
+		int id_len = in.length();
+		for (int i = 0; i < id_len; i++)
+		{
+			char check = in[i];
+			if (!numberCheck)
+				numberCheck = isdigit(check);
+			if (!englishCheck)
+				englishCheck = isalpha(check);
+		}
+
+		if (numberCheck && englishCheck) {
+			send(client_sock, in.c_str(), id_len, 0);
+			cout << "샌드 됨?";
+			recv(client_sock, buf, sizeof(buf), 0);
+			cout << "buf" << buf;
+			if (strcmp(buf, "false") == 0) {
+				id = true;
 			}
-			else
-			{
-				cout << "숫자와 영어의 조합으로 id를 생성하세요." << endl;
-				numberCheck = false;  // 숫자 check
-				englishCheck = false; // 영어 check
-				specialCheck = false; // 특수 check
+			else {
+				id = false;
 				Sleep(1500);
 			}
-			system("cls");
 		}
-		
+		else
+		{
+			cout << "숫자와 영어의 조합으로 id를 생성하세요." << endl;
+			numberCheck = false;  // 숫자 check
+			englishCheck = false; // 영어 check
+			specialCheck = false; // 특수 check
+			Sleep(1500);
+		}
+		system("cls");
+	}
+
 	string input = "";
 	for (int i = 1; i < 7; i++) {
 
@@ -166,7 +152,7 @@ string sign_up() {
 
 				}
 			}
-			
+
 		}
 		else if (i == 3) {
 			cout << user_info[i] << ": ";
@@ -219,7 +205,7 @@ string sign_up() {
 				}
 			}
 		}
-		else if(i==1) {
+		else if (i == 1) {
 			cout << user_info[i] << ": ";
 			cin >> input;
 			user_info[i] = input;
@@ -240,15 +226,15 @@ string sign_up() {
 
 	//stmt->execute("DROP TABLE IF EXISTS user_info");// 채팅 시작 할때 생성해야 됨
 	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
-	
+
 
 	return in;
 }
-
 string login(/*string input_id, string input_pw*/) {
 	string input_id = "";
 	string input_pw = "";
 	bool login_success = false;
+	send(client_sock, "1", 1, 0);
 
 	while (login_success == false) {
 
@@ -265,6 +251,8 @@ string login(/*string input_id, string input_pw*/) {
 		string login;
 
 		login = (input_id + "-" + input_pw);
+
+
 		// 서버에 로그인 정보 전송
 		send(client_sock, login.c_str(), login.length(), 0);
 
@@ -283,29 +271,12 @@ string login(/*string input_id, string input_pw*/) {
 			login_success == false;
 		}
 	}
-	std::thread th2(chat_recv);
-	cout << "채팅이 시작되었습니다.";
-	cout << "\n";
-
-	while (1) {
-		string text;
-		/*std::getline(cin, text);*/
-		cin >> text;
-		text += get_time();
-		const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-		send(client_sock, buffer, strlen(buffer), 0);
-	}
-	th2.join();
-	closesocket(client_sock);
 	return input_id;
 }
-
-string withdrawal() {
+void withdrawal() {
 	string input_id = "";
 	string input_pw = "";
-	bool login = false;
-	bool pass = false;
-	bool withdrawal = false;
+	send(client_sock, "3", 1, 0);
 
 
 	while (1) {
@@ -314,228 +285,129 @@ string withdrawal() {
 		cin >> input_id;
 		cout << "pw:";
 		cin >> input_pw;
+		string withdrawal_info;
+		withdrawal_info = input_id + "-" + input_pw;
 
-		try {
-			driver = sql::mysql::get_mysql_driver_instance();
-			con = driver->connect(server, username, password);
-		}
-		catch (sql::SQLException& e) {
-			cout << "Could not connect to server. Error message: " << e.what() << endl;
-			exit(1);
-		}
+		send(client_sock, withdrawal_info.c_str(), withdrawal_info.length(), 0);
 
-		// 데이터베이스 선택
-		con->setSchema("kdt");
+		char buf[MAX_SIZE] = { };
+		recv(client_sock, buf, MAX_SIZE, 0);
 
-		// db 한글 저장을 위한 셋팅 
-		stmt = con->createStatement();
-		stmt->execute("set names euckr");
-		if (stmt) { delete stmt; stmt = nullptr; }
-
-		// 데이터베이스 쿼리 실행
-		stmt = con->createStatement();
-
-		res = stmt->executeQuery("SELECT id FROM user_info");
-		while (res->next() == true) {
-			std::string id = res->getString("id");
-			if (input_id == id) { login = true; }
-		}
-
-		res = stmt->executeQuery("SELECT pw FROM user_info where id =\"" + input_id + "\"");
-		while (res->next() == true) {
-			std::string pw = res->getString("pw");
-			if (input_pw == pw) { pass = true; }
-		}
-
-
-
-		if (login && pass) {
+		// 결과 출력
+		if (strcmp(buf, "true") == 0) {
 			while (1) {
 				cout << "정말 회원 탈퇴를 하시겠습니까?" << endl;
 				cout << "탈퇴를 원하시면 yes를 입력하시고 아니면 no를 입력하세요";
 				string withdrawalYN;
 				cin >> withdrawalYN;
-				if (withdrawalYN == "yes") {
-					string newId = "알수없음";
+				send(client_sock, withdrawalYN.c_str(), withdrawalYN.length(), 0);
 
+				char buf2[MAX_SIZE] = { };
+				recv(client_sock, buf2, MAX_SIZE, 0);
+
+				if (strcmp(buf2, "true") == 0) {
 					cout << "그동안 이용해주셔서 감사합니다." << endl;
-
-					pstmt = con->prepareStatement("UPDATE chatting SET id = ? WHERE id = ?");
-					pstmt->setString(1, newId);     // newId는 변경하려는 새로운 값
-					pstmt->setString(2, input_id); // input_id는 변경하려는 특정 id
-					pstmt->executeUpdate();
-
-					pstmt = con->prepareStatement("DELETE FROM user_info WHERE id = ?");
-					pstmt->setString(1, input_id);
-					pstmt->executeUpdate();
 					cout << "회원 탈퇴가 완료되었습니다.";
-					withdrawal == true;
 					break;
 				}
-				else if (withdrawalYN == "no") {
+				else if (strcmp(buf2, "false") == 0) {
 					cout << "다시 돌아오신걸 환영합니다.";
 					break;
 				}
 				else {
+					cout << "yes나 no만 입력하세요";
 					continue;
 				}
 			}
-			break;
+
 		}
-
-
 		else {
-			cout << "회원정보가 맞지 않습니다."<<endl;
+			cout << "회원정보가 맞지 않습니다." << endl;
+			continue;
 		}
+		break;
 	}
-	delete stmt;
-	// MySQL Connector/C++ 정리
-	delete res;
-	delete con;
-
 }
-
 void beforechatting() {
 	pstmt = con->prepareStatement("SELECT id, 내용 FROM chatting");
 	res = pstmt->executeQuery();
 	vector<string> id;
 	vector<string> chatting;
 	int i = 0;
-	while(res->next()) {
+	while (res->next()) {
 		id.push_back(res->getString(1));
 		chatting.push_back(res->getString(2));
 	}
 	for (int i = 0; i < id.size(); i++) {
-		cout << id.at(i) << " : " << chatting.at(i)<<endl;
+		cout << id.at(i) << " : " << chatting.at(i) << endl;
 	}
 }
-
 void revise() {
+	send(client_sock, "4", 1, 0);
 	bool complete_revise = true;
+	char buf[MAX_SIZE] = { };
+
+
 	while (complete_revise) {
+		string revise_number;
 		string input_pw;
 		cout << "비밀번호를 입력하세요 : ";
 		cin >> input_pw;
+		string revise_info;
+		string revise_information;
 
-		bool passwordMatch = false;
+		send(client_sock, input_pw.c_str(), input_pw.length(), 0);
 
-		try {
-			driver = sql::mysql::get_mysql_driver_instance();
-			con = driver->connect(server, username, password);
+		recv(client_sock, buf, MAX_SIZE, 0);
+
+		if (strcmp(buf, "true") == 0) {
+			cout << "수정할 정보를 고르세요." << endl;
+			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
+			cin >> revise_number;
 		}
-		catch (sql::SQLException& e) {
-			cout << "Could not connect to server. Error message: " << e.what() << endl;
-			exit(1);
+		char buf1[MAX_SIZE] = { };
+
+		if (revise_number == "1") {
+			cout << "변경된 이름을 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
 		}
-
-		// 데이터베이스 선택
-		con->setSchema("kdt");
-
-		// db 한글 저장을 위한 셋팅 
-		stmt = con->createStatement();
-		stmt->execute("set names euckr");
-		if (stmt) { delete stmt; stmt = nullptr; }
-
-		// 데이터베이스 쿼리 실행
-		stmt = con->createStatement();
-
-		res = stmt->executeQuery("SELECT pw FROM user_info");
-		while (res->next() == true) {
-			std::string pw = res->getString("pw");
-			if (input_pw == pw) {
-				int revise_number;
-				passwordMatch = true;
-
-				cout << "수정할 정보를 고르세요." << endl;
-				cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
-				cin >> revise_number;
-				if (revise_number == 1) {
-					string revise_name;
-					cout << "변경된 이름을 입력하세요 : ";
-					cin >> revise_name;
-					pstmt = con->prepareStatement("UPDATE user_info SET name = ? WHERE pw = ?");
-					pstmt->setString(1, revise_name);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					complete_revise = false;
-					cout << complete_revise;
-					break;
-
-				}
-				else if (revise_number == 2) {
-					string revise_pw;
-					cout << "변경된 pw을 입력하세요 : ";
-					cin >> revise_pw;
-					pstmt = con->prepareStatement("UPDATE user_info SET pw = ? WHERE pw = ?");
-					pstmt->setString(1, pw);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 3) {
-					string revise_birth;
-					cout << "변경된 birth을 입력하세요 : ";
-					cin >> revise_birth;
-					pstmt = con->prepareStatement("UPDATE user_info SET birth = ? WHERE pw = ?");
-					pstmt->setString(1, revise_birth);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 4) {
-					string revise_num;
-					cout << "변경된 num을 입력하세요 : ";
-					cin >> revise_num;
-					pstmt = con->prepareStatement("UPDATE user_info SET num = ? WHERE pw = ?");
-					pstmt->setString(1, revise_num);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 5) {
-					string revise_email;
-					cout << "변경된 email을 입력하세요 : ";
-					cin >> revise_email;
-					pstmt = con->prepareStatement("UPDATE user_info SET email = ? WHERE pw = ?");
-					pstmt->setString(1, revise_email);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else if (revise_number == 6) {
-					string revise_address;
-					cout << "변경된 address을 입력하세요 : ";
-					cin >> revise_address;
-					pstmt = con->prepareStatement("UPDATE user_info SET address = ? WHERE pw = ?");
-					pstmt->setString(1, revise_address);
-					pstmt->setString(2, input_pw);
-					pstmt->executeUpdate();
-					cout << "변경이 완료되었습니다.";
-					break;
-				}
-				else {
-					cout << "올바른 숫자를 입력하세요" << endl;
-
-				}
-				break;
-			}
-
+		else if (revise_number == "2") {
+			cout << "변경된 pw를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
 		}
-		if (!passwordMatch) {
-			cout << "비밀번호가 틀립니다." << endl;
+		else if (revise_number == "3") {
+			cout << "변경된 birth를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "4") {
+			cout << "변경된 number를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "5") {
+			cout << "변경된 email를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		else if (revise_number == "6") {
+			cout << "변경된 email를 입력하세요 : ";
+			cin >> revise_information;
+			revise_info = revise_number + "-" + revise_information;
+		}
+		send(client_sock, revise_info.c_str(), revise_info.length(), 0);
+
+		recv(client_sock, buf1, MAX_SIZE, 0);
+
+		if (strcmp(buf1, "true") == 0) {
+			cout << "변경이 완료되었습니다.";
+			complete_revise = false;
+			break;
 		}
 	}
-
 }
-
-
-
-
 int main(/*int argc, char *argv[]*/)
 {
 	WSADATA wsa;
@@ -544,7 +416,7 @@ int main(/*int argc, char *argv[]*/)
 	// 실행에 성공하면 0을, 실패하면 그 이외의 값을 반환.
 	// 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
 	int code = WSAStartup(MAKEWORD(2, 2), &wsa);
-	char buf[MAX_SIZE] = {};
+
 	if (!code) {
 		client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
 
@@ -561,21 +433,49 @@ int main(/*int argc, char *argv[]*/)
 			}
 			cout << "Connecting..." << endl;
 		}
+
 		while (1) {
 			cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-			string a;
+			int a;
 			cin >> a;
-			send(client_sock, a.c_str(), a.length(), 0);
-			if (a == "1") {
+
+			/*a = atoi(argv[1]);*/
+			if (a == 1) {
+				//string id = "";
+				//string pw = "";
 				login();
+				break;
+				/*beforechatting();*/
 			}
-			else if (a == "2") {
+			else if (a == 2) {
 				sign_up();
 			}
-			delete stmt;
-			delete res;
-			delete con;
+			else if (a == 3) {
+				withdrawal();
+			}
+			else if (a == 4) {
+				revise();
+			}
 		}
+
+
+		std::thread th2(chat_recv);
+		cout << "채팅이 시작되었습니다.";
+		cout << "\n";
+
+		while (1) {
+			string text;
+			std::getline(cin, text);
+			/*cin >> text;*/
+			const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+			send(client_sock, buffer, strlen(buffer), 0);
+		}
+		th2.join();
+		closesocket(client_sock);
+
+		delete stmt;
+		delete res;
+		delete con;
 	}
 	WSACleanup();
 
