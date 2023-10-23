@@ -1,6 +1,6 @@
-#pragma comment(lib, "ws2_32.lib")
+ï»¿#pragma comment(lib, "ws2_32.lib")
 
-#include <WinSock2.h> //Winsock Çì´õÆÄÀÏ include. WSADATA µé¾îÀÖÀ½.
+#include <WinSock2.h> //Winsock í—¤ë”íŒŒì¼ include. WSADATA ë“¤ì–´ìˆìŒ.
 #include <WS2tcpip.h>
 #include <iostream>
 #include <string>
@@ -26,21 +26,27 @@ using namespace std;
 SOCKET client_sock;
 string my_nick;
 
-// MySQL Connector/C++ ÃÊ±âÈ­
-sql::mysql::MySQL_Driver* driver;// ÃßÈÄ ÇØÁ¦ÇÏÁö ¾Ê¾Æµµ Connector/C++°¡ ÀÚµ¿À¸·Î ÇØÁ¦ÇØ ÁÜ
+// MySQL Connector/C++ ì´ˆê¸°í™”
+sql::mysql::MySQL_Driver* driver;// ì¶”í›„ í•´ì œí•˜ì§€ ì•Šì•„ë„ Connector/C++ê°€ ìë™ìœ¼ë¡œ í•´ì œí•´ ì¤Œ
 sql::Connection* con;
 sql::Statement* stmt;
 sql::PreparedStatement* pstmt;
 sql::ResultSet* res = NULL;
 
-const string server = "tcp://127.0.0.1:3306"; // µ¥ÀÌÅÍº£ÀÌ½º ÁÖ¼Ò
-const string username = "root"; // µ¥ÀÌÅÍº£ÀÌ½º »ç¿ëÀÚ
-const string password = "admin"; // µ¥ÀÌÅÍº£ÀÌ½º Á¢¼Ó ºñ¹Ğ¹øÈ£
+//void show(vector<string> k) {
+//	cout << setw(30) <<"<ì‹œì‘í™”ë©´>" << endl << endl;
+//	for (auto i : k) {
+//		cout << setw(30)<<i << endl << endl;
+//	}
+//}
 
+const string server = "tcp://127.0.0.1:3306"; // ë°ì´í„°ë² ì´ìŠ¤ ì£¼ì†Œ
+const string username = "root"; // ë°ì´í„°ë² ì´ìŠ¤ ì‚¬ìš©ì
+const string password = "admin"; // ë°ì´í„°ë² ì´ìŠ¤ ì ‘ì† ë¹„ë°€ë²ˆí˜¸
 void gotoxy(int x, int y, int z) {
-	COORD Pos;  //x, y¸¦ °¡Áö°í ÀÖ´Â ±¸Á¶Ã¼
-	Pos.X = x;  //xÀÇ ¿òÁ÷ÀÌ´Â ¹üÀ§
-	Pos.Y = z + 2 * y;//z=24 ÃÊ±â°ª
+	COORD Pos;  //x, yë¥¼ ê°€ì§€ê³  ìˆëŠ” êµ¬ì¡°ì²´
+	Pos.X = x;  //xì˜ ì›€ì§ì´ëŠ” ë²”ìœ„
+	Pos.Y = z + 2 * y;//z=24 ì´ˆê¸°ê°’
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
@@ -50,10 +56,10 @@ int firstmenu(int z, int j) {
 	int c;
 	for (;;) {
 		gotoxy(10, count, z);
-		if (1) {        //Å°º¸µå ÀÔ·Â È®ÀÎ (true / false)
-			c = _getch();      // ¹æÇâÅ° ÀÔ·Â½Ã 224 00ÀÌ µé¾î¿À°Ô µÇ±â¿¡ ¾Õ¿¡ ÀÖ´Â °ª 224¸¦ ¾ø¾Ú
+		if (1) {        //í‚¤ë³´ë“œ ì…ë ¥ í™•ì¸ (true / false)
+			c = _getch();      // ë°©í–¥í‚¤ ì…ë ¥ì‹œ 224 00ì´ ë“¤ì–´ì˜¤ê²Œ ë˜ê¸°ì— ì•ì— ìˆëŠ” ê°’ 224ë¥¼ ì—†ì•°
 			if (c == 224)
-				c = _getch();  // »õ·Î ÀÔ·Â°ªÀ» ÆÇº°ÇÏ¿© »óÇÏÁÂ¿ì Ãâ·Â
+				c = _getch();  // ìƒˆë¡œ ì…ë ¥ê°’ì„ íŒë³„í•˜ì—¬ ìƒí•˜ì¢Œìš° ì¶œë ¥
 			if (count >= 0 && count <= j) {
 				switch (c) {
 				case 72:
@@ -89,30 +95,57 @@ int startMenu()
 	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               < ½ÃÀÛ È­¸é >                   *\n";
+	cout << " "; cout << "*               < ì‹œì‘ í™”ë©´ >                   *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               1. ·Î±×ÀÎ                       *\n";
+	cout << " "; cout << "*               1. ë¡œê·¸ì¸                       *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               2. È¸¿ø°¡ÀÔ                     *\n";
+	cout << " "; cout << "*               2. íšŒì›ê°€ì…                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               3. È¸¿øÅ»Åğ                     *\n";
+	cout << " "; cout << "*               0. ì¢…ë£Œ                         *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               4. Á¤º¸¼öÁ¤                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               0. Á¾·á                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*************************************************\n\n";
 	/*show(menu);*/
-	int menu_num = firstmenu(13, 4);
-	return menu_num;
+	return firstmenu(13, 2);
 }
-string findsubstr(string const& str, int n) {
-	if (str.length() < n) {
-		return str;
-	}
-	return str.substr(0, n);
+
+int mainMenu()
+{
+
+	cout << "\n";
+	/*vector<string> menu;*/
+	cout << " "; cout << "*************************************************\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*       *******      *       *       *  *       *\n";
+	cout << " "; cout << "*          *        * *      *       * *        *\n";
+	cout << " "; cout << "*          *       *****     *       **         *\n";
+	cout << " "; cout << "*          *      *     *    *       * *        *\n";
+	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               < ë©”ì¸ í™”ë©´ >                   *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               1. ì±„íŒ…ë°©                       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               2. íšŒì›íƒˆí‡´                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               3. ì •ë³´ìˆ˜ì •                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               0. ì¢…ë£Œ                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*************************************************\n\n";
+	/*show(menu);*/
+	return firstmenu(13, 3);
 }
+
+
 int chat_recv() {
 	char buf[MAX_SIZE] = { };
 	string msg;
@@ -123,14 +156,12 @@ int chat_recv() {
 			msg = buf;
 			size_t startPos = msg.find("] ") + 2;
 			msg = msg.substr(startPos, msg.find(" : ", startPos) - startPos);
-			std::stringstream ss(msg);  // ¹®ÀÚ¿­À» ½ºÆ®¸²È­
+			std::stringstream ss(msg);  // ë¬¸ìì—´ì„ ìŠ¤íŠ¸ë¦¼í™”
 			string user;
-			ss >> user; // ½ºÆ®¸²À» ÅëÇØ, ¹®ÀÚ¿­À» °ø¹é ºĞ¸®ÇØ º¯¼ö¿¡ ÇÒ´ç. º¸³½ »ç¶÷ÀÇ ÀÌ¸§¸¸ user¿¡ ÀúÀåµÊ.
+			ss >> user; // ìŠ¤íŠ¸ë¦¼ì„ í†µí•´, ë¬¸ìì—´ì„ ê³µë°± ë¶„ë¦¬í•´ ë³€ìˆ˜ì— í• ë‹¹. ë³´ë‚¸ ì‚¬ëŒì˜ ì´ë¦„ë§Œ userì— ì €ì¥ë¨.
 			if (user != my_nick) {
-				cout << buf << endl; // ³»°¡ º¸³½ °Ô ¾Æ´Ò °æ¿ì¿¡¸¸ Ãâ·ÂÇÏµµ·Ï.
+				cout << buf << endl; // ë‚´ê°€ ë³´ë‚¸ ê²Œ ì•„ë‹ ê²½ìš°ì—ë§Œ ì¶œë ¥í•˜ë„ë¡.
 			}
-		
-
 		}
 		else {
 			cout << "Server Off" << endl;
@@ -138,14 +169,16 @@ int chat_recv() {
 		}
 	}
 }
+
+
 string sign_up() {
 	send(client_sock, "2", 1, 0);
 
-	vector<string> user_info = { "¾ÆÀÌµğ","ÀÌ¸§","ºñ¹Ğ¹øÈ£(¿µ¾î,¼ıÀÚ,Æ¯¼ö¹®ÀÚ Á¶ÇÕ)","birth(yyyy-mm-dd)","¿¬¶ôÃ³ (010-xxxx-xxxx)","email","address" };
+	vector<string> user_info = { "ì•„ì´ë””","ì´ë¦„","ë¹„ë°€ë²ˆí˜¸(ì˜ì–´,ìˆ«ì,íŠ¹ìˆ˜ë¬¸ì ì¡°í•©)","birth(yyyy-mm-dd)","ì—°ë½ì²˜ (010-xxxx-xxxx)","email","address" };
 	int specialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+' };
-	bool numberCheck = false;  // ¼ıÀÚ check
-	bool englishCheck = false; // ¿µ¾î check
-	bool specialCheck = false; // Æ¯¼ö check
+	bool numberCheck = false;  // ìˆ«ì check
+	bool englishCheck = false; // ì˜ì–´ check
+	bool specialCheck = false; // íŠ¹ìˆ˜ check
 	bool is_there_same = 1;
 	string in;
 
@@ -155,8 +188,8 @@ string sign_up() {
 
 		char buf[MAX_SIZE] = {};
 		in = "";
-		cout << "============È¸¿ø°¡ÀÔ==============" << endl;
-		cout << "¾ÆÀÌµğ :";
+		cout << "============íšŒì›ê°€ì…==============" << endl;
+		cout << "ì•„ì´ë”” :";
 		cin >> in;
 		int id_len = in.length();
 		for (int i = 0; i < id_len; i++)
@@ -181,10 +214,10 @@ string sign_up() {
 		}
 		else
 		{
-			cout << "¼ıÀÚ¿Í ¿µ¾îÀÇ Á¶ÇÕÀ¸·Î id¸¦ »ı¼ºÇÏ¼¼¿ä." << endl;
-			numberCheck = false;  // ¼ıÀÚ check
-			englishCheck = false; // ¿µ¾î check
-			specialCheck = false; // Æ¯¼ö check
+			cout << "ìˆ«ìì™€ ì˜ì–´ì˜ ì¡°í•©ìœ¼ë¡œ idë¥¼ ìƒì„±í•˜ì„¸ìš”." << endl;
+			numberCheck = false;  // ìˆ«ì check
+			englishCheck = false; // ì˜ì–´ check
+			specialCheck = false; // íŠ¹ìˆ˜ check
 			Sleep(1500);
 		}
 		system("cls");
@@ -217,10 +250,10 @@ string sign_up() {
 					}
 				}
 				if (!(numberCheck && englishCheck && specialCheck)) {
-					cout << "ºñ¹Ğ¹øÈ£´Â [¿µ¾î,¼ıÀÚ,Æ¯¼ö¹®ÀÚ]·Î ÀÌ·ç¾îÁ®¾ß ÇÕ´Ï´Ù." << endl;
-					numberCheck = false;  // ¼ıÀÚ check
-					englishCheck = false; // ¿µ¾î check
-					specialCheck = false; // Æ¯¼ö check
+					cout << "ë¹„ë°€ë²ˆí˜¸ëŠ” [ì˜ì–´,ìˆ«ì,íŠ¹ìˆ˜ë¬¸ì]ë¡œ ì´ë£¨ì–´ì ¸ì•¼ í•©ë‹ˆë‹¤." << endl;
+					numberCheck = false;  // ìˆ«ì check
+					englishCheck = false; // ì˜ì–´ check
+					specialCheck = false; // íŠ¹ìˆ˜ check
 					Sleep(1500);
 					cout << "pw :";
 				}
@@ -241,7 +274,7 @@ string sign_up() {
 				regex birth("\\d{4}-\\d{2}-\\d{2}");
 
 				if (!(regex_match(input, birth))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					user_info[i] = input;
@@ -258,7 +291,7 @@ string sign_up() {
 				cin >> input;
 				regex phone("[01]{3}-\\d{4}-\\d{4}");
 				if (!(regex_match(input, phone))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					user_info[i] = input;
@@ -274,7 +307,7 @@ string sign_up() {
 				cin >> input;
 				regex mail("[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})");
 				if (!(regex_match(input, mail))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					user_info[i] = input;
@@ -298,24 +331,27 @@ string sign_up() {
 		}
 	}
 
-	//stmt->execute("DROP TABLE IF EXISTS chatting");// Ã¤ÆÃ ½ÃÀÛ ÇÒ¶§ »ı¼ºÇØ¾ß µÊ
-	//stmt->execute("CREATE TABLE chatting (id VARCHAR(50), ³»¿ë VARCHAR(255));"); // CREATE
+	//stmt->execute("DROP TABLE IF EXISTS chatting");// ì±„íŒ… ì‹œì‘ í• ë•Œ ìƒì„±í•´ì•¼ ë¨
+	//stmt->execute("CREATE TABLE chatting (id VARCHAR(50), ë‚´ìš© VARCHAR(255));"); // CREATE
 	//delete stmt;
 
-	//stmt->execute("DROP TABLE IF EXISTS user_info");// Ã¤ÆÃ ½ÃÀÛ ÇÒ¶§ »ı¼ºÇØ¾ß µÊ
+	//stmt->execute("DROP TABLE IF EXISTS user_info");// ì±„íŒ… ì‹œì‘ í• ë•Œ ìƒì„±í•´ì•¼ ë¨
 	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
 
-
+	cout << "íšŒì›ê°€ì…ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
+	Sleep(1500);
 	return in;
 }
-string login(/*string input_id, string input_pw*/) {
-	string input_id = "";
-	string input_pw = "";
+
+void login(/*string input_id, string input_pw*/) {
+
 	bool login_success = false;
 	send(client_sock, "1", 1, 0);
 
-	while (login_success == false) {
 
+	while (login_success == false) {
+		string input_id = "";
+		string input_pw = "";
 		cout << "==========login===========" << endl;
 		cout << "id :";
 		//if (input_id.length() == 0)
@@ -331,26 +367,26 @@ string login(/*string input_id, string input_pw*/) {
 		login = (input_id + "-" + input_pw);
 
 
-		// ¼­¹ö¿¡ ·Î±×ÀÎ Á¤º¸ Àü¼Û
+		// ì„œë²„ì— ë¡œê·¸ì¸ ì •ë³´ ì „ì†¡
 		send(client_sock, login.c_str(), login.length(), 0);
 
-		// ¼­¹ö·ÎºÎÅÍ ·Î±×ÀÎ °á°ú ¹Ş±â
+		// ì„œë²„ë¡œë¶€í„° ë¡œê·¸ì¸ ê²°ê³¼ ë°›ê¸°
 		char buf[MAX_SIZE] = { };
 		recv(client_sock, buf, MAX_SIZE, 0);
 
-		// °á°ú Ãâ·Â
+		// ê²°ê³¼ ì¶œë ¥
 		if (strcmp(buf, "true") == 0) {
-			cout << "·Î±×ÀÎ ¼º°ø" << std::endl;
+			cout << "ë¡œê·¸ì¸ ì„±ê³µ" << std::endl;
 			login_success == true;
 			break;
 		}
 		else {
-			cout << "·Î±×ÀÎ ½ÇÆĞ" << std::endl;
+			cout << "ë¡œê·¸ì¸ ì‹¤íŒ¨" << std::endl;
 			login_success == false;
 		}
 	}
-	return input_id;
 }
+
 void withdrawal() {
 	string input_id = "";
 	string input_pw = "";
@@ -358,7 +394,7 @@ void withdrawal() {
 
 
 	while (1) {
-		cout << "==========È¸¿øÅ»Åğ===========" << endl;
+		cout << "==========íšŒì›íƒˆí‡´===========" << endl;
 		cout << "id:";
 		cin >> input_id;
 		cout << "pw:";
@@ -371,11 +407,11 @@ void withdrawal() {
 		char buf[MAX_SIZE] = { };
 		recv(client_sock, buf, MAX_SIZE, 0);
 
-		// °á°ú Ãâ·Â
+		// ê²°ê³¼ ì¶œë ¥
 		if (strcmp(buf, "true") == 0) {
 			while (1) {
-				cout << "Á¤¸» È¸¿ø Å»Åğ¸¦ ÇÏ½Ã°Ú½À´Ï±î?" << endl;
-				cout << "Å»Åğ¸¦ ¿øÇÏ½Ã¸é yes¸¦ ÀÔ·ÂÇÏ½Ã°í ¾Æ´Ï¸é no¸¦ ÀÔ·ÂÇÏ¼¼¿ä";
+				cout << "ì •ë§ íšŒì› íƒˆí‡´ë¥¼ í•˜ì‹œê² ìŠµë‹ˆê¹Œ?" << endl;
+				cout << "íƒˆí‡´ë¥¼ ì›í•˜ì‹œë©´ yesë¥¼ ì…ë ¥í•˜ì‹œê³  ì•„ë‹ˆë©´ noë¥¼ ì…ë ¥í•˜ì„¸ìš”";
 				string withdrawalYN;
 				cin >> withdrawalYN;
 				send(client_sock, withdrawalYN.c_str(), withdrawalYN.length(), 0);
@@ -384,30 +420,31 @@ void withdrawal() {
 				recv(client_sock, buf2, MAX_SIZE, 0);
 
 				if (strcmp(buf2, "true") == 0) {
-					cout << "±×µ¿¾È ÀÌ¿ëÇØÁÖ¼Å¼­ °¨»çÇÕ´Ï´Ù." << endl;
-					cout << "È¸¿ø Å»Åğ°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù.";
+					cout << "ê·¸ë™ì•ˆ ì´ìš©í•´ì£¼ì…”ì„œ ê°ì‚¬í•©ë‹ˆë‹¤." << endl;
+					cout << "íšŒì› íƒˆí‡´ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
 					break;
 				}
 				else if (strcmp(buf2, "false") == 0) {
-					cout << "´Ù½Ã µ¹¾Æ¿À½Å°É È¯¿µÇÕ´Ï´Ù.";
+					cout << "ë‹¤ì‹œ ëŒì•„ì˜¤ì‹ ê±¸ í™˜ì˜í•©ë‹ˆë‹¤.";
 					break;
 				}
 				else {
-					cout << "yes³ª no¸¸ ÀÔ·ÂÇÏ¼¼¿ä";
+					cout << "yesë‚˜ noë§Œ ì…ë ¥í•˜ì„¸ìš”";
 					continue;
 				}
 			}
 
 		}
 		else {
-			cout << "È¸¿øÁ¤º¸°¡ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+			cout << "íšŒì›ì •ë³´ê°€ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 			continue;
 		}
 		break;
 	}
 }
+
 void beforechatting() {
-	pstmt = con->prepareStatement("SELECT id, ³»¿ë FROM chatting");
+	pstmt = con->prepareStatement("SELECT id, ë‚´ìš© FROM chatting");
 	res = pstmt->executeQuery();
 	vector<string> id;
 	vector<string> chatting;
@@ -420,6 +457,7 @@ void beforechatting() {
 		cout << id.at(i) << " : " << chatting.at(i) << endl;
 	}
 }
+
 void revise() {
 	send(client_sock, "4", 1, 0);
 	bool complete_revise = true;
@@ -429,49 +467,49 @@ void revise() {
 	while (complete_revise) {
 		string revise_number;
 		string input_pw;
-		cout << "ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+		cout << "ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 		cin >> input_pw;
 		string revise_info;
 		string revise_information;
 
 		send(client_sock, input_pw.c_str(), input_pw.length(), 0);
 
-		recv(client_sock, buf, MAX_SIZE, 0);
-
+		recv(client_sock, buf, MAX_SIZE, 0); // ë¹„ë²ˆ ë§ëŠ”ì§€ í™•ì¸
+		cout << "ë²„í”„ë°›ìŒ" << endl;
 		if (strcmp(buf, "true") == 0) {
-			cout << "¼öÁ¤ÇÒ Á¤º¸¸¦ °í¸£¼¼¿ä." << endl;
+			cout << "ìˆ˜ì •í•  ì •ë³´ë¥¼ ê³ ë¥´ì„¸ìš”." << endl;
 			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
 			cin >> revise_number;
 		}
 		char buf1[MAX_SIZE] = { };
 
 		if (revise_number == "1") {
-			cout << "º¯°æµÈ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ ì´ë¦„ì„ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "2") {
-			cout << "º¯°æµÈ pw¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ pwë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "3") {
-			cout << "º¯°æµÈ birth¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ birthë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "4") {
-			cout << "º¯°æµÈ number¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ numberë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "5") {
-			cout << "º¯°æµÈ email¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ emailë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "6") {
-			cout << "º¯°æµÈ email¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ emailë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> revise_information;
 			revise_info = revise_number + "-" + revise_information;
 		}
@@ -480,94 +518,93 @@ void revise() {
 		recv(client_sock, buf1, MAX_SIZE, 0);
 
 		if (strcmp(buf1, "true") == 0) {
-			cout << "º¯°æÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù.";
+			cout << "ë³€ê²½ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
 			complete_revise = false;
 			break;
 		}
 	}
 }
+
+
+
+
 int main(/*int argc, char *argv[]*/)
 {
 	WSADATA wsa;
 
-	// Winsock¸¦ ÃÊ±âÈ­ÇÏ´Â ÇÔ¼ö. MAKEWORD(2, 2)´Â WinsockÀÇ 2.2 ¹öÀüÀ» »ç¿ëÇÏ°Ú´Ù´Â ÀÇ¹Ì.
-	// ½ÇÇà¿¡ ¼º°øÇÏ¸é 0À», ½ÇÆĞÇÏ¸é ±× ÀÌ¿ÜÀÇ °ªÀ» ¹İÈ¯.
-	// 0À» ¹İÈ¯Çß´Ù´Â °ÍÀº WinsockÀ» »ç¿ëÇÒ ÁØºñ°¡ µÇ¾ú´Ù´Â ÀÇ¹Ì.
+	// Winsockë¥¼ ì´ˆê¸°í™”í•˜ëŠ” í•¨ìˆ˜. MAKEWORD(2, 2)ëŠ” Winsockì˜ 2.2 ë²„ì „ì„ ì‚¬ìš©í•˜ê² ë‹¤ëŠ” ì˜ë¯¸.
+	// ì‹¤í–‰ì— ì„±ê³µí•˜ë©´ 0ì„, ì‹¤íŒ¨í•˜ë©´ ê·¸ ì´ì™¸ì˜ ê°’ì„ ë°˜í™˜.
+	// 0ì„ ë°˜í™˜í–ˆë‹¤ëŠ” ê²ƒì€ Winsockì„ ì‚¬ìš©í•  ì¤€ë¹„ê°€ ë˜ì—ˆë‹¤ëŠ” ì˜ë¯¸.
 	int code = WSAStartup(MAKEWORD(2, 2), &wsa);
+
+
 
 	if (!code) {
 		client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
 
-		// ¿¬°áÇÒ ¼­¹ö Á¤º¸ ¼³Á¤ ºÎºĞ
+		// ì—°ê²°í•  ì„œë²„ ì •ë³´ ì„¤ì • ë¶€ë¶„
 		SOCKADDR_IN client_addr = {};
 		client_addr.sin_family = AF_INET;
 		client_addr.sin_port = htons(7777);
 		InetPton(AF_INET, TEXT("192.168.0.28"), &client_addr.sin_addr); //192.168.0.63   192.168.195.243
 
 		while (1) {
-			if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // À§¿¡ ¼³Á¤ÇÑ Á¤º¸¿¡ ÇØ´çÇÏ´Â server·Î ¿¬°á!
-				cout << "Server Connect" << endl;
+			if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // ìœ„ì— ì„¤ì •í•œ ì •ë³´ì— í•´ë‹¹í•˜ëŠ” serverë¡œ ì—°ê²°!
+				/*cout << "Server Connect" << endl;*/
 				break;
 			}
 			cout << "Connecting..." << endl;
 		}
 
 		while (1) {
-			int menu_num = startMenu();
 
-			//while(1) {
-			//	cout << "1¹ø ·Î±×ÀÎ,  2¹ø È¸¿ø°¡ÀÔ,  3¹ø È¸¿øÅ»Åğ, 4¹ø È¸¿øÁ¤º¸¼öÁ¤ ";
-			//	int a;
-			//	cin >> a;
+			int menu_num = startMenu();
 			/*a = atoi(argv[1]);*/
 			if (menu_num == 0) {
 				system("cls");
 				//string id = "";
 				//string pw = "";
 				login();
-				break;
-				/*beforechatting();*/
+				system("cls");
+				int main_num = mainMenu();
+
+				if (main_num == 0) {
+					system("cls");
+					send(client_sock,"1", strlen("1"), 0);
+					std::thread th2(chat_recv);
+					cout << "ì±„íŒ…ì´ ì‹œì‘ë˜ì—ˆìŠµë‹ˆë‹¤.";
+					cout << "\n";
+
+					while (1) {
+						string text;
+						std::getline(cin, text);
+						/*cin >> text;*/
+						const char* buffer = text.c_str(); // stringí˜•ì„ char* íƒ€ì…ìœ¼ë¡œ ë³€í™˜
+						send(client_sock, buffer, strlen(buffer), 0);
+					}
+					th2.join();
+					closesocket(client_sock);
+				}
+				else if (main_num == 1) {
+					system("cls");
+					withdrawal();
+					system("cls");
+				}
+				else if (main_num == 2) {
+					system("cls");
+					revise();
+					system("cls");
+				}
 			}
 			else if (menu_num == 1) {
 				system("cls");
 				sign_up();
-			}
-			else if (menu_num == 2) {
 				system("cls");
-				withdrawal();
+
 			}
-			else if (menu_num == 3) {
-				system("cls");
-				revise();
-				system("cls");
-			}
+
 		}
-
-
-		std::thread th2(chat_recv);
-		cout << "Ã¤ÆÃÀÌ ½ÃÀÛµÇ¾ú½À´Ï´Ù.";
-		cout << "\n";
-
-		while (1) {
-			string text;
-			std::getline(cin, text);
-			/*cin >> text;*/
-			const char* buffer = text.c_str(); // stringÇüÀ» char* Å¸ÀÔÀ¸·Î º¯È¯
-			if (findsubstr(text, sizeof("/³ª°¡±â")) == "/³ª°¡±â") {
-				send(client_sock, buffer, strlen(buffer), 0);
-			}
-			else {
-				send(client_sock, buffer, strlen(buffer), 0);
-			}
-		}
-		th2.join();
-		closesocket(client_sock);
-
-		delete stmt;
-		delete res;
-		delete con;
+		WSACleanup();
+		return 0;
 	}
-	WSACleanup();
-
-	return 0;
 }
