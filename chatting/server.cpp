@@ -408,13 +408,15 @@ void recv_msg(int idx) {
                 string dm_id = dm.erase(dm.find(" "), dm.size());
 
                 for (int i = 0; i < sck_list.size(); i++) {
-                    cout << "반복문" << endl;
                     cout << sck_list[i].user << endl;
                     if (sck_list[i].user == dm_id) {
                         send_dm_msg(dm_message.c_str(), i, idx);
                         cout << "dm" << dm_message;
                     }
                 }
+            }
+            else if (findsubstr(t, sizeof("/나가기")) == "/나가기") {
+                cout << "나가기";
             }
             else {
                 sck_list[idx].user = sck_list[idx].user.substr(0, sck_list[idx].user.find("-"));

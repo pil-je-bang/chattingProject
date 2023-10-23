@@ -10,6 +10,9 @@
 #include <iomanip>
 #include <vector>
 #include <regex>
+#include <conio.h>
+#include<Windows.h>
+#include<algorithm>
 
 #define MAX_SIZE 1024
 
@@ -34,7 +37,82 @@ const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "admin"; // 데이터베이스 접속 비밀번호
 
+void gotoxy(int x, int y, int z) {
+	COORD Pos;  //x, y를 가지고 있는 구조체
+	Pos.X = x;  //x의 움직이는 범위
+	Pos.Y = z + 2 * y;//z=24 초기값
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
 
+int firstmenu(int z, int j) {
+	int menu = 0;
+	int count = 0;
+	int c;
+	for (;;) {
+		gotoxy(10, count, z);
+		if (1) {        //키보드 입력 확인 (true / false)
+			c = _getch();      // 방향키 입력시 224 00이 들어오게 되기에 앞에 있는 값 224를 없앰
+			if (c == 224)
+				c = _getch();  // 새로 입력값을 판별하여 상하좌우 출력
+			if (count >= 0 && count <= j) {
+				switch (c) {
+				case 72:
+					if (count > 0)
+						count--;
+					continue;
+				case 80:
+					if (count < j)
+						count++;
+					continue;
+				case 13:
+					menu = count;
+					break;
+				}
+			}
+		}
+		break;
+	}
+	return menu;
+}
+
+int startMenu()
+{
+
+	cout << "\n";
+	/*vector<string> menu;*/
+	cout << " "; cout << "*************************************************\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*       *******      *       *       *  *       *\n";
+	cout << " "; cout << "*          *        * *      *       * *        *\n";
+	cout << " "; cout << "*          *       *****     *       **         *\n";
+	cout << " "; cout << "*          *      *     *    *       * *        *\n";
+	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               < 시작 화면 >                   *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               1. 로그인                       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               2. 회원가입                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               3. 회원탈퇴                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               4. 정보수정                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*************************************************\n\n";
+	/*show(menu);*/
+	int menu_num = firstmenu(13, 4);
+	return menu_num;
+}
+string findsubstr(string const& str, int n) {
+	if (str.length() < n) {
+		return str;
+	}
+	return str.substr(0, n);
+}
 int chat_recv() {
 	char buf[MAX_SIZE] = { };
 	string msg;
@@ -51,6 +129,8 @@ int chat_recv() {
 			if (user != my_nick) {
 				cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
 			}
+		
+
 		}
 		else {
 			cout << "Server Off" << endl;
@@ -90,9 +170,7 @@ string sign_up() {
 
 		if (numberCheck && englishCheck) {
 			send(client_sock, in.c_str(), id_len, 0);
-			cout << "샌드 됨?";
 			recv(client_sock, buf, sizeof(buf), 0);
-			cout << "buf" << buf;
 			if (strcmp(buf, "false") == 0) {
 				id = true;
 			}
@@ -435,26 +513,33 @@ int main(/*int argc, char *argv[]*/)
 		}
 
 		while (1) {
-			cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-			int a;
-			cin >> a;
+			int menu_num = startMenu();
 
+			//while(1) {
+			//	cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
+			//	int a;
+			//	cin >> a;
 			/*a = atoi(argv[1]);*/
-			if (a == 1) {
+			if (menu_num == 0) {
+				system("cls");
 				//string id = "";
 				//string pw = "";
 				login();
 				break;
 				/*beforechatting();*/
 			}
-			else if (a == 2) {
+			else if (menu_num == 1) {
+				system("cls");
 				sign_up();
 			}
-			else if (a == 3) {
+			else if (menu_num == 2) {
+				system("cls");
 				withdrawal();
 			}
-			else if (a == 4) {
+			else if (menu_num == 3) {
+				system("cls");
 				revise();
+				system("cls");
 			}
 		}
 
@@ -468,7 +553,12 @@ int main(/*int argc, char *argv[]*/)
 			std::getline(cin, text);
 			/*cin >> text;*/
 			const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-			send(client_sock, buffer, strlen(buffer), 0);
+			if (findsubstr(text, sizeof("/나가기")) == "/나가기") {
+				send(client_sock, buffer, strlen(buffer), 0);
+			}
+			else {
+				send(client_sock, buffer, strlen(buffer), 0);
+			}
 		}
 		th2.join();
 		closesocket(client_sock);
