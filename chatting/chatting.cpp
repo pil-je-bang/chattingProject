@@ -42,7 +42,7 @@ sql::ResultSet* res = NULL;
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
-const string password = "(()()&pj0907"; // 데이터베이스 접속 비밀번호
+const string password = "admin"; // 데이터베이스 접속 비밀번호
 void gotoxy(int x, int y, int z) {
 	COORD Pos;  //x, y를 가지고 있는 구조체
 	Pos.X = x;  //x의 움직이는 범위
@@ -83,7 +83,7 @@ int firstmenu(int z, int j) {
 
 int startMenu()
 {
-	
+
 	cout << "\n";
 	/*vector<string> menu;*/
 	cout << " "; cout << "*************************************************\n";
@@ -110,8 +110,7 @@ int startMenu()
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*************************************************\n\n";
 	/*show(menu);*/
-	int menu_num = firstmenu(13, 2);
-	return menu_num;
+	return firstmenu(13, 2);
 }
 
 int mainMenu()
@@ -137,14 +136,20 @@ int mainMenu()
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*               3. 정보수정                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*               4. 로그아웃                     *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*************************************************\n\n";
 	/*show(menu);*/
-	int main_num = firstmenu(13, 3);
 	return firstmenu(13, 3);
+}
+
+string findsubstr(string const& str, int n) {
+	if (str.length() < n) {
+		return str;
+	}
+	return str.substr(0, n);
 }
 
 
@@ -162,7 +167,15 @@ int chat_recv() {
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
 			if (user != my_nick) {
-				cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+				if (findsubstr(buf, 3) == "/dm") {
+					string dm = msg.substr(msg.find("m")+1);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+					cout << dm << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+				}
+				else {
+					cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+				}
 			}
 		}
 		else {
@@ -375,6 +388,7 @@ void login(/*string input_id, string input_pw*/) {
 		// 서버로부터 로그인 결과 받기
 		char buf[MAX_SIZE] = { };
 		recv(client_sock, buf, MAX_SIZE, 0);
+		cout << buf << "두번째bufbufbufubfu"<<endl;
 
 		// 결과 출력
 		if (strcmp(buf, "true") == 0) {
@@ -423,19 +437,21 @@ void withdrawal() {
 
 				if (strcmp(buf2, "true") == 0) {
 					cout << "그동안 이용해주셔서 감사합니다." << endl;
-					cout << "회원 탈퇴가 완료되었습니다.";
+					cout << "회원 탈퇴가 완료되었습니다."<< endl;
+					Sleep(1500);
 					break;
 				}
 				else if (strcmp(buf2, "false") == 0) {
-					cout << "다시 돌아오신걸 환영합니다.";
+					cout << "다시 돌아오신걸 환영합니다."<< endl;
+					Sleep(1500);
 					break;
 				}
 				else {
-					cout << "yes나 no만 입력하세요";
+					cout << "yes나 no만 입력하세요" << endl;
 					continue;
 				}
 			}
-			
+
 		}
 		else {
 			cout << "회원정보가 맞지 않습니다." << endl;
@@ -451,12 +467,12 @@ void beforechatting() {
 	vector<string> id;
 	vector<string> chatting;
 	int i = 0;
-	while(res->next()) {
+	while (res->next()) {
 		id.push_back(res->getString(1));
 		chatting.push_back(res->getString(2));
 	}
 	for (int i = 0; i < id.size(); i++) {
-		cout << id.at(i) << " : " << chatting.at(i)<<endl;
+		cout << id.at(i) << " : " << chatting.at(i) << endl;
 	}
 }
 
@@ -464,7 +480,7 @@ void revise() {
 	send(client_sock, "4", 1, 0);
 	bool complete_revise = true;
 	char buf[MAX_SIZE] = { };
-	
+
 
 	while (complete_revise) {
 		string revise_number;
@@ -476,8 +492,7 @@ void revise() {
 
 		send(client_sock, input_pw.c_str(), input_pw.length(), 0);
 
-		recv(client_sock, buf, MAX_SIZE, 0);
-
+		recv(client_sock, buf, MAX_SIZE, 0); // 비번 맞는지 확인
 		if (strcmp(buf, "true") == 0) {
 			cout << "수정할 정보를 고르세요." << endl;
 			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
@@ -488,7 +503,7 @@ void revise() {
 		if (revise_number == "1") {
 			cout << "변경된 이름을 입력하세요 : ";
 			cin >> revise_information;
-			revise_info = revise_number +"-" + revise_information;
+			revise_info = revise_number + "-" + revise_information;
 		}
 		else if (revise_number == "2") {
 			cout << "변경된 pw를 입력하세요 : ";
@@ -521,12 +536,16 @@ void revise() {
 
 		if (strcmp(buf1, "true") == 0) {
 			cout << "변경이 완료되었습니다.";
+			Sleep(1500);
 			complete_revise = false;
 			break;
 		}
 	}
 }
 
+void logout() {
+	send(client_sock, "5", 1, 0);
+}
 
 
 
@@ -559,25 +578,27 @@ int main(/*int argc, char *argv[]*/)
 		}
 
 		while (1) {
-			
+
 			int menu_num = startMenu();
-				/*a = atoi(argv[1]);*/
+			/*a = atoi(argv[1]);*/
 			if (menu_num == 0) {
 				system("cls");
 				//string id = "";
 				//string pw = "";
-				login(); 
+				login();
 				system("cls");
 				int main_num = mainMenu();
-				
+
 				if (main_num == 0) {
 					system("cls");
+					send(client_sock, "1", strlen("1"), 0);
 					std::thread th2(chat_recv);
 					cout << "채팅이 시작되었습니다.";
 					cout << "\n";
 
 					while (1) {
 						string text;
+						
 						std::getline(cin, text);
 						/*cin >> text;*/
 						const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
@@ -587,28 +608,29 @@ int main(/*int argc, char *argv[]*/)
 					closesocket(client_sock);
 				}
 				else if (main_num == 1) {
-						system("cls");
-						withdrawal();
-						system("cls");
+					system("cls");
+					withdrawal();
+					system("cls");
 				}
 				else if (main_num == 2) {
-						system("cls");
-						revise();
-						system("cls");
+					system("cls");
+					revise();
+					system("cls");
 				}
-				WSACleanup();
-				/*beforechatting();*/
-				break;
+				else if (main_num == 3) {
+					system("cls");
+					logout();
+				}
 			}
 			else if (menu_num == 1) {
 				system("cls");
 				sign_up();
 				system("cls");
-				
-			}
-			
-		}
 
+			}
+
+		}
+		WSACleanup();
 		return 0;
 	}
 }
