@@ -424,7 +424,7 @@ int main(/*int argc, char *argv[]*/)
 		SOCKADDR_IN client_addr = {};
 		client_addr.sin_family = AF_INET;
 		client_addr.sin_port = htons(7777);
-		InetPton(AF_INET, TEXT("192.168.0.42"), &client_addr.sin_addr); //192.168.0.63   192.168.195.243
+		InetPton(AF_INET, TEXT("192.168.0.28"), &client_addr.sin_addr); //192.168.0.63   192.168.195.243
 
 		while (1) {
 			if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // 위에 설정한 정보에 해당하는 server로 연결!
