@@ -10,6 +10,9 @@
 #include <iomanip>
 #include <vector>
 #include <regex>
+#include <conio.h>
+#include<Windows.h>
+#include<algorithm>
 
 #define MAX_SIZE 1024
 
@@ -30,9 +33,86 @@ sql::Statement* stmt;
 sql::PreparedStatement* pstmt;
 sql::ResultSet* res = NULL;
 
+//void show(vector<string> k) {
+//	cout << setw(30) <<"<시작화면>" << endl << endl;
+//	for (auto i : k) {
+//		cout << setw(30)<<i << endl << endl;
+//	}
+//}
+
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "(()()&pj0907"; // 데이터베이스 접속 비밀번호
+void gotoxy(int x, int y, int z) {
+	COORD Pos;  //x, y를 가지고 있는 구조체
+	Pos.X = x;  //x의 움직이는 범위
+	Pos.Y = z + 2 * y;//z=24 초기값
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
+
+int firstmenu(int z, int j) {
+	int menu = 0;
+	int count = 0;
+	int c;
+	for (;;) {
+		gotoxy(10, count, z);
+		if (1) {        //키보드 입력 확인 (true / false)
+			c = _getch();      // 방향키 입력시 224 00이 들어오게 되기에 앞에 있는 값 224를 없앰
+			if (c == 224)
+				c = _getch();  // 새로 입력값을 판별하여 상하좌우 출력
+			if (count >= 0 && count <= j) {
+				switch (c) {
+				case 72:
+					if (count > 0)
+						count--;
+					continue;
+				case 80:
+					if (count < j)
+						count++;
+					continue;
+				case 13:
+					menu = count;
+					break;
+				}
+			}
+		}
+		break;
+	}
+	return menu;
+}
+
+int startMenu()
+{
+	
+	cout << "\n";
+	/*vector<string> menu;*/
+	cout << " "; cout << "*************************************************\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*       *******      *       *       *  *       *\n";
+	cout << " "; cout << "*          *        * *      *       * *        *\n";
+	cout << " "; cout << "*          *       *****     *       **         *\n";
+	cout << " "; cout << "*          *      *     *    *       * *        *\n";
+	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               < 시작 화면 >                   *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               1. 로그인                       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               2. 회원가입                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               3. 회원탈퇴                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               4. 정보수정                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*************************************************\n\n";
+	/*show(menu);*/
+	int menu_num = firstmenu(13, 4);
+	return menu_num;
+}
 
 
 int chat_recv() {
@@ -438,33 +518,43 @@ int main(/*int argc, char *argv[]*/)
 
 		while (1) {
 			if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // 위에 설정한 정보에 해당하는 server로 연결!
-				cout << "Server Connect" << endl;
+				/*cout << "Server Connect" << endl;*/
 				break;
 			}
 			cout << "Connecting..." << endl;
 		}
 
-		while(1) {
-			cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-			int a;
-			cin >> a;
+		while(1){
+		int menu_num = startMenu();
+
+		//while(1) {
+		//	cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
+		//	int a;
+		//	cin >> a;
 
 			/*a = atoi(argv[1]);*/
-			if (a == 1) {
+			if (menu_num == 0) {
+				system("cls");
 				//string id = "";
 				//string pw = "";
 				login();
 				break;
 				/*beforechatting();*/
 			}
-			else if (a == 2) {
+			else if (menu_num == 1) {
+				system("cls");
 				sign_up();
+				system("cls");
 			}
-			else if (a == 3) {
+			else if (menu_num == 2) {
+				system("cls");
 				withdrawal();
+				system("cls");
 			}
-			else if (a == 4) {
+			else if (menu_num == 3) {
+				system("cls");
 				revise();
+				system("cls");
 			}
 		}
 

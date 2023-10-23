@@ -451,6 +451,6 @@ void recv_msg(int idx) {
 
 void del_client(int idx) {
     closesocket(sck_list[idx].sck);
-    //sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
+   // sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
     client_count--;
 }
