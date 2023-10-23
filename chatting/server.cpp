@@ -228,7 +228,6 @@ void add_client() {
                     res = stmt->executeQuery("SELECT id FROM user_info");
                     while (res->next() == true) {
                         std::string id = res->getString("id");
-                        cout << id << endl;
                         if (buf == id) {
                             t = false;
                             send(new_client.sck, "false", sizeof("false"), 0);

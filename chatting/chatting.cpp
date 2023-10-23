@@ -102,16 +102,49 @@ int startMenu()
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*               2. 회원가입                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               3. 회원탈퇴                     *\n";
-	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               4. 정보수정                     *\n";
-	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*************************************************\n\n";
 	/*show(menu);*/
-	int menu_num = firstmenu(13, 4);
+	int menu_num = firstmenu(13, 2);
 	return menu_num;
+}
+
+int mainMenu()
+{
+
+	cout << "\n";
+	/*vector<string> menu;*/
+	cout << " "; cout << "*************************************************\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*       *******      *       *       *  *       *\n";
+	cout << " "; cout << "*          *        * *      *       * *        *\n";
+	cout << " "; cout << "*          *       *****     *       **         *\n";
+	cout << " "; cout << "*          *      *     *    *       * *        *\n";
+	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               < 메인 화면 >                   *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               1. 채팅방                       *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               2. 회원탈퇴                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               3. 정보수정                     *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*                                               *\n";
+	cout << " "; cout << "*************************************************\n\n";
+	/*show(menu);*/
+	int main_num = firstmenu(13, 3);
+	return firstmenu(13, 3);
 }
 
 
@@ -172,9 +205,7 @@ string sign_up() {
 
 		if (numberCheck && englishCheck) {
 			send(client_sock, in.c_str(), id_len, 0);
-			cout << "샌드 됨?";
 			recv(client_sock, buf, sizeof(buf), 0);
-			cout << "buf" << buf;
 			if (strcmp(buf, "false") == 0) {
 				id = true;
 			}
@@ -309,18 +340,20 @@ string sign_up() {
 	//stmt->execute("DROP TABLE IF EXISTS user_info");// 채팅 시작 할때 생성해야 됨
 	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
 
-
+	cout << "회원가입이 완료되었습니다.";
+	Sleep(1500);
 	return in;
 }
 
-string login(/*string input_id, string input_pw*/) {
-	string input_id = "";
-	string input_pw = "";
+void login(/*string input_id, string input_pw*/) {
+
 	bool login_success = false;
 	send(client_sock, "1", 1, 0);
 
-	while (login_success == false) {
 
+	while (login_success == false) {
+		string input_id = "";
+		string input_pw = "";
 		cout << "==========login===========" << endl;
 		cout << "id :";
 		//if (input_id.length() == 0)
@@ -354,7 +387,6 @@ string login(/*string input_id, string input_pw*/) {
 			login_success == false;
 		}
 	}
-	return input_id;
 }
 
 void withdrawal() {
@@ -507,6 +539,8 @@ int main(/*int argc, char *argv[]*/)
 	// 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
 	int code = WSAStartup(MAKEWORD(2, 2), &wsa);
 
+
+
 	if (!code) {
 		client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
 
@@ -524,60 +558,57 @@ int main(/*int argc, char *argv[]*/)
 			cout << "Connecting..." << endl;
 		}
 
-		while(1){
-		int menu_num = startMenu();
-
-		//while(1) {
-		//	cout << "1번 로그인,  2번 회원가입,  3번 회원탈퇴, 4번 회원정보수정 ";
-		//	int a;
-		//	cin >> a;
-
-			/*a = atoi(argv[1]);*/
+		while (1) {
+			
+			int menu_num = startMenu();
+				/*a = atoi(argv[1]);*/
 			if (menu_num == 0) {
 				system("cls");
 				//string id = "";
 				//string pw = "";
-				login();
-				break;
+				login(); 
+				system("cls");
+				int main_num = mainMenu();
+				
+				if (main_num == 0) {
+					system("cls");
+					std::thread th2(chat_recv);
+					cout << "채팅이 시작되었습니다.";
+					cout << "\n";
+
+					while (1) {
+						string text;
+						std::getline(cin, text);
+						/*cin >> text;*/
+						const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+						send(client_sock, buffer, strlen(buffer), 0);
+					}
+					th2.join();
+					closesocket(client_sock);
+				}
+				else if (main_num == 1) {
+						system("cls");
+						withdrawal();
+						system("cls");
+				}
+				else if (main_num == 2) {
+						system("cls");
+						revise();
+						system("cls");
+				}
+				WSACleanup();
 				/*beforechatting();*/
+				break;
 			}
 			else if (menu_num == 1) {
 				system("cls");
 				sign_up();
 				system("cls");
+				
 			}
-			else if (menu_num == 2) {
-				system("cls");
-				withdrawal();
-				system("cls");
-			}
-			else if (menu_num == 3) {
-				system("cls");
-				revise();
-				system("cls");
-			}
+			
 		}
 
-
-		std::thread th2(chat_recv);
-		cout << "채팅이 시작되었습니다.";
-		cout << "\n";
-
-		while (1) {
-			string text;
-			std::getline(cin, text);
-			/*cin >> text;*/
-			const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-			send(client_sock, buffer, strlen(buffer), 0);
-		}
-		th2.join();
-		closesocket(client_sock);
-
-		delete stmt;
-		delete res;
-		delete con;
+		return 0;
 	}
-	WSACleanup();
-
-	return 0;
 }
