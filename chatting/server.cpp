@@ -27,6 +27,7 @@ const string password = "(()()&pj0907"; // 데이터베이스 접속 비밀번호
 struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     SOCKET sck;
     string user;
+    int ti;
 };
 
 
@@ -40,15 +41,36 @@ sql::ResultSet* res;
 
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
 SOCKET_INFO server_sock; // 서버 소켓에 대한 정보를 저장할 변수 선언.
-SOCKET_INFO server_sock1;
 int client_count = 0; // 현재 접속해 있는 클라이언트를 count 할 변수 선언.
 
 void server_init(); // socket 초기화 함수. socket(), bind(), listen() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
-void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
+void add_client(int ti); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
 string get_time(); //시간
+SOCKET getSocket(string user);
+int removeSocket(string user);
+
+int recreate = -1;
+std::thread th1[MAX_CLIENT];
+
+void recreateThread() {
+    while (1) {
+        cout << "recreate " << recreate << endl;
+        if (recreate > -1) {
+            cout << "th1.join() " << recreate << endl;
+            th1[recreate].join();
+            cout << "join " << recreate << endl;
+            th1[recreate] = std::thread(add_client, recreate);
+            recreate = -1;
+        }
+        if (recreate == -2) {
+            return;
+        }
+        Sleep(1000);
+    }
+}
 
 int main() {
     WSADATA wsa;
@@ -64,7 +86,7 @@ int main() {
         std::thread th1[MAX_CLIENT];
         for (int i = 0; i < MAX_CLIENT; i++) {
             // 인원 수 만큼 thread 생성해서 각각의 클라이언트가 동시에 소통할 수 있도록 함.
-            th1[i] = std::thread(add_client);
+            th1[i] = std::thread(add_client, i);
         }
         //std::thread th1(add_client); // 이렇게 하면 하나의 client만 받아짐...
 
@@ -139,7 +161,7 @@ void server_init() {
 }
 
 
-void add_client() {
+void add_client(int ti) {
     
     string input_id, input_pw;
     SOCKET_INFO new_client = {};
