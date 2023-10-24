@@ -421,6 +421,7 @@ string findsubstr(string const& str, int n) {
 void recv_msg(int idx) {
     char buf[MAX_SIZE] = { };
     string msg = "";
+    string msg_time = get_time();
 
     try {
         driver = sql::mysql::get_mysql_driver_instance();
@@ -457,6 +458,15 @@ void recv_msg(int idx) {
 
                 for (int i = 0; i < sck_list.size(); i++) {
                     if (sck_list[i].user == dm_id) {
+                        pstmt = con->prepareStatement("INSERT INTO dm_chatting(시간, 보낸사람, 받는사람, 내용) VALUES(?,?,?,?)"); // INSERT
+                        pstmt->setString(1, msg_time);
+                        pstmt->setString(2, sck_list[idx].user);
+                        pstmt->setString(3, dm_id);
+                        pstmt->setString(4, dm_message);
+                        pstmt->execute();
+                        // MySQL Connector/C++ 정리
+                        delete pstmt;
+
                         send_dm_msg(dm_message.c_str(), i, idx);
                         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
                         cout << sck_list[idx].user << "가 " << dm_id<< "에게 " << dm_message;
@@ -466,9 +476,6 @@ void recv_msg(int idx) {
             else {
                 sck_list[idx].user = sck_list[idx].user.substr(0, sck_list[idx].user.find("-"));
                 msg = sck_list[idx].user + " : " + buf;
-
-                string msg_time = get_time();
-
                 msg = msg_time + " " + sck_list[idx].user + " : " + buf;
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
                 cout << msg << endl;
