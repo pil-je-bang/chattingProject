@@ -136,13 +136,20 @@ int mainMenu()
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*               3. 정보수정                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               0. 종료                         *\n";
+	cout << " "; cout << "*               4. 로그아웃                     *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*************************************************\n\n";
 	/*show(menu);*/
 	return firstmenu(13, 3);
+}
+
+string findsubstr(string const& str, int n) {
+	if (str.length() < n) {
+		return str;
+	}
+	return str.substr(0, n);
 }
 
 
@@ -160,7 +167,15 @@ int chat_recv() {
 			string user;
 			ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
 			if (user != my_nick) {
-				cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+				if (findsubstr(buf, 3) == "/dm") {
+					string dm = msg.substr(msg.find("m") + 1);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+					cout << dm << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+				}
+				else {
+					cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+				}
 			}
 		}
 		else {
@@ -367,7 +382,7 @@ void login(/*string input_id, string input_pw*/) {
 		login = (input_id + "-" + input_pw);
 
 
-		// 서버에 로그인 정보 전송
+		// 서버에 로그인 정보(아이디-비번) 전송
 		send(client_sock, login.c_str(), login.length(), 0);
 
 		// 서버로부터 로그인 결과 받기
@@ -381,7 +396,7 @@ void login(/*string input_id, string input_pw*/) {
 			break;
 		}
 		else {
-			cout << "로그인 실패" << std::endl;
+			cout << "로그인 실패(접속중이거나 없는 아이디 입니다.)" << std::endl;
 			login_success == false;
 		}
 	}
@@ -421,15 +436,17 @@ void withdrawal() {
 
 				if (strcmp(buf2, "true") == 0) {
 					cout << "그동안 이용해주셔서 감사합니다." << endl;
-					cout << "회원 탈퇴가 완료되었습니다.";
+					cout << "회원 탈퇴가 완료되었습니다." << endl;
+					Sleep(1500);
 					break;
 				}
 				else if (strcmp(buf2, "false") == 0) {
-					cout << "다시 돌아오신걸 환영합니다.";
+					cout << "다시 돌아오신걸 환영합니다." << endl;
+					Sleep(1500);
 					break;
 				}
 				else {
-					cout << "yes나 no만 입력하세요";
+					cout << "yes나 no만 입력하세요" << endl;
 					continue;
 				}
 			}
@@ -475,7 +492,6 @@ void revise() {
 		send(client_sock, input_pw.c_str(), input_pw.length(), 0);
 
 		recv(client_sock, buf, MAX_SIZE, 0); // 비번 맞는지 확인
-		cout << "버프받음" << endl;
 		if (strcmp(buf, "true") == 0) {
 			cout << "수정할 정보를 고르세요." << endl;
 			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
@@ -519,12 +535,16 @@ void revise() {
 
 		if (strcmp(buf1, "true") == 0) {
 			cout << "변경이 완료되었습니다.";
+			Sleep(1500);
 			complete_revise = false;
 			break;
 		}
 	}
 }
 
+void logout() {
+	send(client_sock, "5", 1, 0);
+}
 
 
 
@@ -568,9 +588,10 @@ int main(/*int argc, char *argv[]*/)
 				system("cls");
 				int main_num = mainMenu();
 
+
 				if (main_num == 0) {
 					system("cls");
-					send(client_sock,"1", strlen("1"), 0);
+					send(client_sock, "1", strlen("1"), 0);
 					std::thread th2(chat_recv);
 					cout << "채팅이 시작되었습니다.";
 					cout << "\n";
@@ -580,11 +601,14 @@ int main(/*int argc, char *argv[]*/)
 						std::getline(cin, text);
 						/*cin >> text;*/
 						const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+
 						send(client_sock, buffer, strlen(buffer), 0);
+
 					}
-					th2.join();
 					closesocket(client_sock);
+					th2.join();
 				}
+
 				else if (main_num == 1) {
 					system("cls");
 					withdrawal();
@@ -595,12 +619,20 @@ int main(/*int argc, char *argv[]*/)
 					revise();
 					system("cls");
 				}
+				else if (main_num == 3) {
+					system("cls");
+					logout();
+				}
 			}
 			else if (menu_num == 1) {
 				system("cls");
 				sign_up();
 				system("cls");
 
+			}
+			else if (menu_num == 2) {
+				system("cls");
+				break;
 			}
 
 		}
