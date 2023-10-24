@@ -1,4 +1,4 @@
-﻿#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib")
 
 #include <WinSock2.h> //Winsock 헤더파일 include. WSADATA 들어있음.
 #include <WS2tcpip.h>
@@ -588,27 +588,27 @@ int main(/*int argc, char *argv[]*/)
 				system("cls");
 				int main_num = mainMenu();
 
-
+				
 				if (main_num == 0) {
 					system("cls");
 					send(client_sock, "1", strlen("1"), 0);
 					std::thread th2(chat_recv);
 					cout << "채팅이 시작되었습니다.";
-					cout << "\n";
+					cout << "\n"; 
 
 					while (1) {
 						string text;
 						std::getline(cin, text);
 						/*cin >> text;*/
 						const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-
+						
 						send(client_sock, buffer, strlen(buffer), 0);
-
+						
 					}
 					closesocket(client_sock);
 					th2.join();
 				}
-
+				
 				else if (main_num == 1) {
 					system("cls");
 					withdrawal();
@@ -634,7 +634,7 @@ int main(/*int argc, char *argv[]*/)
 				system("cls");
 				break;
 			}
-
+			
 		}
 		WSACleanup();
 		return 0;
