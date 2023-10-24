@@ -1,6 +1,6 @@
 #pragma comment(lib, "ws2_32.lib")
 
-#include <WinSock2.h> //Winsock Çì´õÆÄÀÏ include. WSADATA µé¾îÀÖÀ½.
+#include <WinSock2.h> //Winsock í—¤ë”íŒŒì¼ include. WSADATA ë“¤ì–´ìˆìŒ.
 #include <WS2tcpip.h>
 #include <iostream>
 #include <string>
@@ -25,9 +25,9 @@ SOCKET ClientSock;
 string MyNick;
 
 void GoToXY(int x, int y, int z) {
-	COORD Pos;  //x, y¸¦ °¡Áö°í ÀÖ´Â ±¸Á¶Ã¼
-	Pos.X = x;  //xÀÇ ¿òÁ÷ÀÌ´Â ¹üÀ§
-	Pos.Y = z + 2 * y;//z=24 ÃÊ±â°ª
+	COORD Pos;  //x, yë¥¼ ê°€ì§€ê³  ìˆëŠ” êµ¬ì¡°ì²´
+	Pos.X = x;  //xì˜ ì›€ì§ì´ëŠ” ë²”ìœ„
+	Pos.Y = z + 2 * y;//z=24 ì´ˆê¸°ê°’
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
@@ -37,10 +37,10 @@ int FirstMenu(int z, int j) {
 	int Direction;
 	for (;;) {
 		GoToXY(10, Count, z);
-		if (1) {        //Å°º¸µå ÀÔ·Â È®ÀÎ (true / false)
-			Direction = _getch();      // ¹æÇâÅ° ÀÔ·Â½Ã 224 00ÀÌ µé¾î¿À°Ô µÇ±â¿¡ ¾Õ¿¡ ÀÖ´Â °ª 224¸¦ ¾ø¾Ú
+		if (1) {        //í‚¤ë³´ë“œ ì…ë ¥ í™•ì¸ (true / false)
+			Direction = _getch();      // ë°©í–¥í‚¤ ì…ë ¥ì‹œ 224 00ì´ ë“¤ì–´ì˜¤ê²Œ ë˜ê¸°ì— ì•ì— ìˆëŠ” ê°’ 224ë¥¼ ì—†ì•°
 			if (Direction == 224)
-				Direction = _getch();  // »õ·Î ÀÔ·Â°ªÀ» ÆÇº°ÇÏ¿© »óÇÏÁÂ¿ì Ãâ·Â
+				Direction = _getch();  // ìƒˆë¡œ ì…ë ¥ê°’ì„ íŒë³„í•˜ì—¬ ìƒí•˜ì¢Œìš° ì¶œë ¥
 			if (Count >= 0 && Count <= j) {
 				switch (Direction) {
 				case 72:
@@ -74,14 +74,14 @@ int StartMenu()
 	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               < ½ÃÀÛ È­¸é >                   *\n";
+	cout << " "; cout << "*               < ì‹œì‘ í™”ë©´ >                   *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               1. ·Î±×ÀÎ                       *\n";
+	cout << " "; cout << "*               1. ë¡œê·¸ì¸                       *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               2. È¸¿ø°¡ÀÔ                     *\n";
+	cout << " "; cout << "*               2. íšŒì›ê°€ì…                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               0. Á¾·á                         *\n";
+	cout << " "; cout << "*               0. ì¢…ë£Œ                         *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
@@ -103,16 +103,16 @@ int MainMenu()
 	cout << " "; cout << "*          *     *       *   *****   *  *       *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               < ¸ŞÀÎ È­¸é >                   *\n";
+	cout << " "; cout << "*               < ë©”ì¸ í™”ë©´ >                   *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               1. Ã¤ÆÃ¹æ                       *\n";
+	cout << " "; cout << "*               1. ì±„íŒ…ë°©                       *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               2. È¸¿øÅ»Åğ                     *\n";
+	cout << " "; cout << "*               2. íšŒì›íƒˆí‡´                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               3. Á¤º¸¼öÁ¤                     *\n";
+	cout << " "; cout << "*               3. ì •ë³´ìˆ˜ì •                     *\n";
 	cout << " "; cout << "*                                               *\n";
-	cout << " "; cout << "*               4. ·Î±×¾Æ¿ô                     *\n";
+	cout << " "; cout << "*               4. ë¡œê·¸ì•„ì›ƒ                     *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
 	cout << " "; cout << "*                                               *\n";
@@ -120,7 +120,7 @@ int MainMenu()
 	return FirstMenu(13, 3);
 }
 
-string FindSubstr(string const& str, int n) { //±ÛÀÚ Ã£´Â ÇÔ¼ö
+string FindSubstr(string const& str, int n) {
 	if (str.length() < n) {
 		return str;
 	}
@@ -138,18 +138,18 @@ int ChatRecv() {
 			Msg = ChatBuf;
 			size_t startPos = Msg.find("] ") + 2;
 			Msg = Msg.substr(startPos, Msg.find(" : ", startPos) - startPos);
-			std::stringstream ss(Msg);  // ¹®ÀÚ¿­À» ½ºÆ®¸²È­
+			std::stringstream ss(Msg);  // ë¬¸ìì—´ì„ ìŠ¤íŠ¸ë¦¼í™”
 			string User;
-			ss >> User; // ½ºÆ®¸²À» ÅëÇØ, ¹®ÀÚ¿­À» °ø¹é ºĞ¸®ÇØ º¯¼ö¿¡ ÇÒ´ç. º¸³½ »ç¶÷ÀÇ ÀÌ¸§¸¸ user¿¡ ÀúÀåµÊ.
+			ss >> User; // ìŠ¤íŠ¸ë¦¼ì„ í†µí•´, ë¬¸ìì—´ì„ ê³µë°± ë¶„ë¦¬í•´ ë³€ìˆ˜ì— í• ë‹¹. ë³´ë‚¸ ì‚¬ëŒì˜ ì´ë¦„ë§Œ userì— ì €ì¥ë¨.
 			if (User != MyNick) {
-				if (FindSubstr(ChatBuf, 3) == "/dm") { //¸Ş½ÃÁö ¹Ş¾Æ¼­ dmÀÎÁö ¾Æ´ÑÁö ±¸ºĞÇØ¼­  Ãâ·Â
+				if (FindSubstr(ChatBuf, 3) == "/dm") {
 					string Dm = Msg.substr(Msg.find("m")+1);
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-					cout << Dm << endl; // ³»°¡ º¸³½ °Ô ¾Æ´Ò °æ¿ì¿¡¸¸ Ãâ·ÂÇÏµµ·Ï.
+					cout << Dm << endl; // ë‚´ê°€ ë³´ë‚¸ ê²Œ ì•„ë‹ ê²½ìš°ì—ë§Œ ì¶œë ¥í•˜ë„ë¡..
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 				}
 				else {
-					cout << ChatBuf << endl; // ³»°¡ º¸³½ °Ô ¾Æ´Ò °æ¿ì¿¡¸¸ Ãâ·ÂÇÏµµ·Ï.
+					cout << ChatBuf << endl; // ë‚´ê°€ ë³´ë‚¸ ê²Œ ì•„ë‹ ê²½ìš°ì—ë§Œ ì¶œë ¥í•˜ë„ë¡.
 				}
 			}
 		}
@@ -159,28 +159,27 @@ int ChatRecv() {
 		}
 	}
 }
-
-
-void SignUp() { //È¸¿ø°¡ÀÔ
+void SignUp() {
 	send(ClientSock, "2", 1, 0);
-
-	vector<string> UserInfo = { "¾ÆÀÌµğ","ÀÌ¸§","ºñ¹Ğ¹øÈ£(¿µ¾î,¼ıÀÚ,Æ¯¼ö¹®ÀÚ Á¶ÇÕ)","birth(yyyy-mm-dd)","¿¬¶ôÃ³ (010-xxxx-xxxx)","email","address" };
+	vector<string> UserInfo = { "ì•„ì´ë””","ì´ë¦„","ë¹„ë°€ë²ˆí˜¸(ì˜ì–´,ìˆ«ì,íŠ¹ìˆ˜ë¬¸ì ì¡°í•©)","birth(yyyy-mm-dd)","ì—°ë½ì²˜ (010-xxxx-xxxx)","email","address" };
 	
-	int SpecialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+' };
-	bool NumberCheck = false;  // ¼ıÀÚ check
-	bool EnglishCheck = false; // ¿µ¾î check
-	bool SpecialCheck = false; // Æ¯¼ö check
+	int SpecialList[12] = { '!','@','#','$','%','^','&','*','(',')','-','+'};
+	bool NumberCheck = false;  // ìˆ«ì check
+	bool EnglishCheck = false; // ì˜ì–´ check
+	bool SpecialCheck = false; // íŠ¹ìˆ˜ check
 	bool Id = true;
 	
+
 
 	while (Id) {
 		char SignUpBuf[MAX_SIZE] = {};
 		string InputId = "";
-		cout << "============È¸¿ø°¡ÀÔ==============" << endl;
-		cout << "¾ÆÀÌµğ :";
+		cout << "============íšŒì›ê°€ì…==============" << endl;
+		cout << "ì•„ì´ë”” :";
 		cin >> InputId;
 		int InputIdLen = InputId.length();
 		for (int i = 0; i < InputIdLen; i++)
+
 		{
 			char Check = InputId[i];
 			if (!NumberCheck)
@@ -202,10 +201,12 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 		}
 		else
 		{
-			cout << "¼ıÀÚ¿Í ¿µ¾îÀÇ Á¶ÇÕÀ¸·Î id¸¦ »ı¼ºÇÏ¼¼¿ä." << endl;
-			NumberCheck = false;  // ¼ıÀÚ check
-			EnglishCheck = false; // ¿µ¾î check
-			SpecialCheck = false; // Æ¯¼ö check
+
+			cout << "ìˆ«ìì™€ ì˜ì–´ì˜ ì¡°í•©ìœ¼ë¡œ idë¥¼ ìƒì„±í•˜ì„¸ìš”." << endl;
+			NumberCheck = false;  // ìˆ«ì check
+			EnglishCheck = false; // ì˜ì–´ check
+			SpecialCheck = false; // íŠ¹ìˆ˜ check
+
 			Sleep(1500);
 		}
 		system("cls");
@@ -237,12 +238,14 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 						}
 					}
 				}
+
 				if (!(NumberCheck && EnglishCheck && SpecialCheck)) {
-					cout << "ºñ¹Ğ¹øÈ£´Â [¿µ¾î,¼ıÀÚ,Æ¯¼ö¹®ÀÚ]·Î ÀÌ·ç¾îÁ®¾ß ÇÕ´Ï´Ù." << endl;
-					NumberCheck = false;  // ¼ıÀÚ check
-					EnglishCheck = false; // ¿µ¾î check
-					SpecialCheck = false; // Æ¯¼ö check
+					cout << "ë¹„ë°€ë²ˆí˜¸ëŠ” [ì˜ì–´,ìˆ«ì,íŠ¹ìˆ˜ë¬¸ì]ë¡œ ì´ë£¨ì–´ì ¸ì•¼ í•©ë‹ˆë‹¤." << endl;
+					NumberCheck = false;  // ìˆ«ì check
+					EnglishCheck = false; // ì˜ì–´ check
+					SpecialCheck = false; // íŠ¹ìˆ˜ check
 					Sleep(1500);
+          
 					cout << "pw :";
 				}
 				else {
@@ -259,8 +262,9 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 				cin >> Input;
 				regex Birth("\\d{4}-\\d{2}-\\d{2}");
 
+
 				if (!(regex_match(Input, Birth))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					UserInfo[i] = Input;
@@ -270,13 +274,14 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 			}
 		}
 		else if (i == 4) {
+
 			cout << UserInfo[i] << ": ";
 			bool Cnt = true;
 			while (Cnt) {
 				cin >> Input;
 				regex Phone("[01]{3}-\\d{4}-\\d{4}");
 				if (!(regex_match(Input, Phone))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					UserInfo[i] = Input;
@@ -291,8 +296,9 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 			while (Cnt) {
 				cin >> Input;
 				regex mail("[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})");
+
 				if (!(regex_match(Input, mail))) {
-					cout << "Çü½ÄÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+					cout << "í˜•ì‹ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 				}
 				else {
 					UserInfo[i] = Input;
@@ -315,11 +321,19 @@ void SignUp() { //È¸¿ø°¡ÀÔ
 			send(ClientSock, Input.c_str(), Input.length(), 0);
 		}
 	}
-	cout << "È¸¿ø°¡ÀÔÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù.";
+
+	cout << "íšŒì›ê°€ì…ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
+  
+  //stmt->execute("DROP TABLE IF EXISTS chatting");// ì±„íŒ… ì‹œì‘ í• ë•Œ ìƒì„±í•´ì•¼ ë¨
+	//stmt->execute("CREATE TABLE chatting (id VARCHAR(50), ë‚´ìš© VARCHAR(255));"); // CREATE
+	//delete stmt;
+
+	//stmt->execute("DROP TABLE IF EXISTS user_info");// ì±„íŒ… ì‹œì‘ í• ë•Œ ìƒì„±í•´ì•¼ ë¨
+	//stmt->execute("CREATE TABLE user_info (id VARCHAR(50), name VARCHAR(50), pw VARCHAR(50), birth date, num VARCHAR(50), email VARCHAR(50), address VARCHAR(50));"); // CREATE
 	Sleep(1500);
 }
 
-void LogIn() { //·Î±×ÀÎ
+void LogIn() { //ë¡œê·¸ì¸
 	bool LoginSuccess = false;
 	send(ClientSock, "1", 1, 0);
 
@@ -336,33 +350,33 @@ void LogIn() { //·Î±×ÀÎ
 
 		Login = (InputId + "-" + InputPw);
 
-		// ¼­¹ö¿¡ ·Î±×ÀÎ Á¤º¸ Àü¼Û
+		// ì„œë²„ì— ë¡œê·¸ì¸ ì •ë³´ ì „ì†¡
 		send(ClientSock, Login.c_str(), Login.length(), 0);
 
-		// ¼­¹ö·ÎºÎÅÍ ·Î±×ÀÎ °á°ú ¹Ş±â
+		// ì„œë²„ë¡œë¶€í„° ë¡œê·¸ì¸ ê²°ê³¼ ë°›ê¸°
 		char LoginBuf[MAX_SIZE] = { };
 		recv(ClientSock, LoginBuf, MAX_SIZE, 0);
 
-		// °á°ú Ãâ·Â
+		// ê²°ê³¼ ì¶œë ¥
 		if (strcmp(LoginBuf, "true") == 0) {
-			cout << "·Î±×ÀÎ ¼º°ø" << std::endl;
+			cout << "ë¡œê·¸ì¸ ì„±ê³µ" << std::endl;
 			LoginSuccess == true;
 			break;
 		}
 		else {
-			cout << "·Î±×ÀÎ ½ÇÆĞ" << std::endl;
+			cout << "ë¡œê·¸ì¸ ì‹¤íŒ¨" << std::endl;
 			LoginSuccess == false;
 		}
 	}
 }
 
-void Withdrawal() { //È¸¿øÅ»Åğ
+void Withdrawal() { //íšŒì›íƒˆí‡´
 	string InputId = "";
 	string InputPw = "";
 	send(ClientSock, "3", 1, 0);
 
 	while (1) {
-		cout << "==========È¸¿øÅ»Åğ===========" << endl;
+		cout << "==========íšŒì›íƒˆí‡´===========" << endl;
 		cout << "id:";
 		cin >> InputId;
 		cout << "pw:";
@@ -374,11 +388,11 @@ void Withdrawal() { //È¸¿øÅ»Åğ
 		char WithdrawalBuf[MAX_SIZE] = { };
 		recv(ClientSock, WithdrawalBuf, MAX_SIZE, 0);
 
-		// °á°ú Ãâ·Â
+		// ê²°ê³¼ ì¶œë ¥
 		if (strcmp(WithdrawalBuf, "true") == 0) {
 			while (1) {
-				cout << "Á¤¸» È¸¿ø Å»Åğ¸¦ ÇÏ½Ã°Ú½À´Ï±î?" << endl;
-				cout << "Å»Åğ¸¦ ¿øÇÏ½Ã¸é yes¸¦ ÀÔ·ÂÇÏ½Ã°í ¾Æ´Ï¸é no¸¦ ÀÔ·ÂÇÏ¼¼¿ä";
+				cout << "ì •ë§ íšŒì› íƒˆí‡´ë¥¼ í•˜ì‹œê² ìŠµë‹ˆê¹Œ?" << endl;
+				cout << "íƒˆí‡´ë¥¼ ì›í•˜ì‹œë©´ yesë¥¼ ì…ë ¥í•˜ì‹œê³  ì•„ë‹ˆë©´ noë¥¼ ì…ë ¥í•˜ì„¸ìš”";
 				string WithdrawalYN;
 				cin >> WithdrawalYN;
 				send(ClientSock, WithdrawalYN.c_str(), WithdrawalYN.length(), 0);
@@ -387,31 +401,31 @@ void Withdrawal() { //È¸¿øÅ»Åğ
 				recv(ClientSock, WithdrawalBuf2, MAX_SIZE, 0);
 
 				if (strcmp(WithdrawalBuf2, "true") == 0) {
-					cout << "±×µ¿¾È ÀÌ¿ëÇØÁÖ¼Å¼­ °¨»çÇÕ´Ï´Ù." << endl;
-					cout << "È¸¿ø Å»Åğ°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù."<< endl;
+					cout << "ê·¸ë™ì•ˆ ì´ìš©í•´ì£¼ì…”ì„œ ê°ì‚¬í•©ë‹ˆë‹¤." << endl;
+					cout << "íšŒì› íƒˆí‡´ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤." << endl;
 					Sleep(1500);
 					break;
 				}
 				else if (strcmp(WithdrawalBuf2, "false") == 0) {
-					cout << "´Ù½Ã µ¹¾Æ¿À½Å°É È¯¿µÇÕ´Ï´Ù."<< endl;
+					cout << "ë‹¤ì‹œ ëŒì•„ì˜¤ì‹ ê±¸ í™˜ì˜í•©ë‹ˆë‹¤." << endl;
 					Sleep(1500);
 					break;
 				}
 				else {
-					cout << "yes³ª no¸¸ ÀÔ·ÂÇÏ¼¼¿ä" << endl;
+					cout << "yesë‚˜ noë§Œ ì…ë ¥í•˜ì„¸ìš”" << endl;
+					continue;
 				}
 			}
 		}
 		else {
-			cout << "È¸¿øÁ¤º¸°¡ ¸ÂÁö ¾Ê½À´Ï´Ù." << endl;
+			cout << "íšŒì›ì •ë³´ê°€ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤." << endl;
 			continue;
 		}
 		break;
 	}
 }
 
-
-void Revise() { //È¸¿øÁ¤º¸ ¼öÁ¤
+void Revise() { //ì •ë³´ìˆ˜ì •í•˜ê¸°
 	send(ClientSock, "4", 1, 0);
 	bool CompleteRevise = true;
 	char ReviseBuf[MAX_SIZE] = { };
@@ -419,56 +433,59 @@ void Revise() { //È¸¿øÁ¤º¸ ¼öÁ¤
 	while (CompleteRevise) {
 		string ReviseNumber;
 		string InputPw;
-		cout << "ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+		cout << "ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 		cin >> InputPw;
 		string ReviseInfo;
 		string ReviseInformation;
 
 		send(ClientSock, InputPw.c_str(), InputPw.length(), 0);
-		recv(ClientSock, ReviseBuf, MAX_SIZE, 0); // ºñ¹ø ¸ÂÀ¸¸é true, Æ²¸®¸é false
+		recv(ClientSock, ReviseBuf, MAX_SIZE, 0); // ë¹„ë²ˆ ë§ìœ¼ë©´ true, í‹€ë¦¬ë©´ false
 
 		if (strcmp(ReviseBuf, "true") == 0) {
-			cout << "¼öÁ¤ÇÒ Á¤º¸¸¦ °í¸£¼¼¿ä." << endl;
+			cout << "ìˆ˜ì •í•  ì •ë³´ë¥¼ ê³ ë¥´ì„¸ìš”." << endl;
 			cout << "1. name  2. pw  3. birth  4. num  5. email  6. address" << endl;
 			cin >> ReviseNumber;
 		}
 
+
 		if (ReviseNumber == "1") {
-			cout << "º¯°æµÈ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ ì´ë¦„ì„ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
 		}
 		else if (ReviseNumber == "2") {
-			cout << "º¯°æµÈ pw¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ pwë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
 		}
 		else if (ReviseNumber == "3") {
-			cout << "º¯°æµÈ birth¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ birthë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
 		}
 		else if (ReviseNumber == "4") {
-			cout << "º¯°æµÈ number¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ numberë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
 		}
 		else if (ReviseNumber == "5") {
-			cout << "º¯°æµÈ email¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ emailë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
 		}
 		else if (ReviseNumber == "6") {
-			cout << "º¯°æµÈ email¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
+			cout << "ë³€ê²½ëœ addressë¥¼ ì…ë ¥í•˜ì„¸ìš” : ";
 			cin >> ReviseInformation;
 			ReviseInfo = ReviseNumber + "-" + ReviseInformation;
-		}
+    }
+
 		send(ClientSock, ReviseInfo.c_str(), ReviseInfo.length(), 0);
 		char ReviseBuf2[MAX_SIZE] = { };
 		recv(ClientSock, ReviseBuf2, MAX_SIZE, 0);
 
+
 		if (strcmp(ReviseBuf2, "true") == 0) {
-			cout << "º¯°æÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù.";
+			cout << "ë³€ê²½ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
 			Sleep(1500);
 			CompleteRevise = false;
 			break;
@@ -476,7 +493,7 @@ void Revise() { //È¸¿øÁ¤º¸ ¼öÁ¤
 	}
 }
 
-void LogOut() { //·Î±×¾Æ¿ô
+void LogOut() { //LogOut
 	send(ClientSock, "5", 1, 0);
 }
 
@@ -486,22 +503,22 @@ int main()
 {
 	WSADATA wsa;
 
-	// Winsock¸¦ ÃÊ±âÈ­ÇÏ´Â ÇÔ¼ö. MAKEWORD(2, 2)´Â WinsockÀÇ 2.2 ¹öÀüÀ» »ç¿ëÇÏ°Ú´Ù´Â ÀÇ¹Ì.
-	// ½ÇÇà¿¡ ¼º°øÇÏ¸é 0À», ½ÇÆĞÇÏ¸é ±× ÀÌ¿ÜÀÇ °ªÀ» ¹İÈ¯.
-	// 0À» ¹İÈ¯Çß´Ù´Â °ÍÀº WinsockÀ» »ç¿ëÇÒ ÁØºñ°¡ µÇ¾ú´Ù´Â ÀÇ¹Ì.
+	// Winsockë¥¼ ì´ˆê¸°í™”í•˜ëŠ” í•¨ìˆ˜. MAKEWORD(2, 2)ëŠ” Winsockì˜ 2.2 ë²„ì „ì„ ì‚¬ìš©í•˜ê² ë‹¤ëŠ” ì˜ë¯¸.
+	// ì‹¤í–‰ì— ì„±ê³µí•˜ë©´ 0ì„, ì‹¤íŒ¨í•˜ë©´ ê·¸ ì´ì™¸ì˜ ê°’ì„ ë°˜í™˜.
+	// 0ì„ ë°˜í™˜í–ˆë‹¤ëŠ” ê²ƒì€ Winsockì„ ì‚¬ìš©í•  ì¤€ë¹„ê°€ ë˜ì—ˆë‹¤ëŠ” ì˜ë¯¸.
 	int code = WSAStartup(MAKEWORD(2, 2), &wsa);
 
 	if (!code) {
 		ClientSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-		// ¿¬°áÇÒ ¼­¹ö Á¤º¸ ¼³Á¤ ºÎºĞ
+		// ì—°ê²°í•  ì„œë²„ ì •ë³´ ì„¤ì • ë¶€ë¶„
 		SOCKADDR_IN ClientAddr = {};
 		ClientAddr.sin_family = AF_INET;
 		ClientAddr.sin_port = htons(7777);
 		InetPton(AF_INET, TEXT("192.168.0.63"), &ClientAddr.sin_addr); //192.168.0.63   192.168.195.243
 
 		while (1) {
-			if (!connect(ClientSock, (SOCKADDR*)&ClientAddr, sizeof(ClientAddr))) { // À§¿¡ ¼³Á¤ÇÑ Á¤º¸¿¡ ÇØ´çÇÏ´Â server·Î ¿¬°á!
+			if (!connect(ClientSock, (SOCKADDR*)&ClientAddr, sizeof(ClientAddr))) { // ìœ„ì— ì„¤ì •í•œ ì •ë³´ì— í•´ë‹¹í•˜ëŠ” serverë¡œ ì—°ê²°!
 				break;
 			}
 			cout << "Connecting..." << endl;
@@ -510,47 +527,51 @@ int main()
 		while (1) {
 			int MenuNum = StartMenu(); //startMenu
 
-			if (MenuNum == 0) { //menu_numÀÌ 0ÀÌ¸é ·Î±×ÀÎ
+			if (MenuNum == 0) {
 				system("cls");
-				LogIn(); //·Î±×ÀÎ
+				LogIn();
 				system("cls");
 				int MainNum = MainMenu(); //mainMenu
 
-				if (MainNum == 0) { //main_numÀÌ 0ÀÌ¸é Ã¤ÆÃ ½ÃÀÛ
+				if (MainNum == 0) { 
 					system("cls");
 					send(ClientSock, "1", strlen("1"), 0);
 					std::thread ChatThread(ChatRecv);
-					cout << "Ã¤ÆÃÀÌ ½ÃÀÛµÇ¾ú½À´Ï´Ù.";
+					cout << "ì±„íŒ…ì´ ì‹œì‘ë˜ì—ˆìŠµë‹ˆë‹¤.";
 					cout << "\n";
 
 					while (1) {
 						string Text;
 						std::getline(cin, Text);
-						const char* ChatBuffer = Text.c_str(); // stringÇüÀ» char* Å¸ÀÔÀ¸·Î º¯È¯
+						const char* ChatBuffer = Text.c_str(); 
 						send(ClientSock, ChatBuffer, strlen(ChatBuffer), 0);
 					}
 					ChatThread.join();
 					closesocket(ClientSock);
 				}
-				else if (MainNum == 1) { //main_numÀÌ 1ÀÌ¸é È¸¿øÅ»Åğ
+				else if (MainNum == 1) {
 					system("cls");
 					Withdrawal();
 					system("cls");
 				}
-				else if (MainNum == 2) { //main_numÀÌ 2ÀÌ¸é È¸¿ø¼öÁ¤
+				else if (MainNum == 2) {
 					system("cls");
 					Revise();
 					system("cls");
 				}
-				else if (MainNum == 3) { //main_numÀÌ 3ÀÌ¸é ·Î±×¾Æ¿ô
+				else if (MainNum == 3) {
 					system("cls");
 					LogOut();
 				}
 			}
-			else if (MenuNum == 1) { //menu_numÀÌ 1ÀÌ¸é È¸¿ø°¡ÀÔ
+			else if (MenuNum == 1) {
 				system("cls");
 				SignUp();
 				system("cls");
+			}
+			else if (MenuNum == 2) {
+				system("cls");
+				break;
 			}
 		}
 		WSACleanup();
