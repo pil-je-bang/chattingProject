@@ -1,20 +1,20 @@
 ﻿  server.cpp
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(220,56): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(225,57): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(272,60): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(277,61): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(295,56): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(298,57): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(301,64): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(314,60): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(350,52): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(377,60): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(382,61): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(189,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(192,60): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(196,56): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(238,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(242,60): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(260,55): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(263,56): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(266,63): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(281,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(317,51): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ppjj2\github\Project1\chattingProject\chatting\server.cpp(427,62): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
      C:\Users\ppjj2\github\Project1\chattingProject\x64\Release\chatting.lib 라이브러리 및 C:\Users\ppjj2\github\Project1\chattingProject\x64\Release\chatting.exp 개체를 생성하고 있습니다.
   코드를 생성하고 있습니다.
-  88 of 424 functions (20.8%) were compiled, the rest were copied from previous compilation.
-    4 functions were new in current compilation
-    20 functions had inline decision re-evaluated but remain unchanged
+  2 of 489 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: '' PDB를 'mysqlcppconn-static.lib(mysql_driver.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: '' PDB를 'mysqlcppconn-static.lib(mysql_connection.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
